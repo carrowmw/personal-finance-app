@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Welcome to Your Personal Finance App</h1>
+
+<!-- Button to connect a bank account -->
+<div>
+    <button id="link-button" class="btn btn-primary">Connect Bank Account</button>
+</div>
+
+<!-- Button to get transactions -->
+<div>
+    <button id="transactions-button" class="btn btn-secondary" disabled>Get Transactions</button>
+</div>
+
+<!-- Button to get balance -->
+<div>
+    <button id="balance-button" class="btn btn-secondary" disabled>Get Balance</button>
+</div>
+
+<!-- The Dash app will be embedded here -->
+<div>
+    <iframe src="/dash/" style="width: 100%; height: 600px; border: none;"></iframe>
+</div>
+
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script>
+    let accessToken = null;
+
+    // Check if an access token is already available
+    fetch("http://localhost:5030/api/check_access_token")
+        .then(response => response.json())
+        .then(data => {
+            if (data.access_token) {
+                accessToken = data.access_token;
+                console.log("Access token found:", accessToken);
+
+                // Enable the transaction and balance buttons
+                document.getElementById('transactions-button').disabled = false;
+                document.getElementById('balance-button').disabled = false;
+            } else {
+                console.log("No access token found. Please connect your account.");
+            }
+        })
+        .catch(error => console.error("Error checking access token:", error));
+
+    // Fetch the link token from the server
+    fetch("http://localhost:5030/api/create_link_token")
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.error("Error fetching link token:", data.error);
+                return;
+            }
+
+            const linkToken = data.link_token;
+            const handler = Plaid.create({
+                token: linkToken,
+                onSuccess: function (public_token, metadata) {
+                    // Exchange public token for access token
+                    fetch("http://localhost:5030/api/exchange_public_token", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ public_token }),
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            accessToken = data.access_token;
+                            console.log("Access token:", accessToken);
+
+                            // Enable the transaction and balance buttons
+                            document.getElementById('transactions-button').disabled = false;
+                            document.getElementById('balance-button').disabled = false;
+                        });
+                },
+                onExit: function (err, metadata) {
+                    console.log("User exited", err, metadata);
+                }
+            });
+
+            // Set up event listener for the connect button
+            document.getElementById('link-button').addEventListener('click', function () {
+                handler.open();
+            });
+        })
+        .catch(error => console.error("Error in fetch operation:", error));
+
+    // Event listener for transactions button
+    document.getElementById('transactions-button').addEventListener('click', function () {
+        if (accessToken) {
+            fetch("http://localhost:5030/api/transactions", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ access_token: accessToken, start_date: "2023-01-01", end_date: "2024-07-31" }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Transactions:", data.transactions);
+                });
+        } else {
+            console.error("Access token is not available.");
+        }
+    });
+
+    // Event listener for balance button
+    document.getElementById('balance-button').addEventListener('click', function () {
+        if (accessToken) {
+            fetch("http://localhost:5030/api/balance", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ access_token: accessToken }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Balance:", data.balance);
+                });
+        } else {
+            console.error("Access token is not available.");
+        }
+    });
+</script>
+
+{% endblock %}
