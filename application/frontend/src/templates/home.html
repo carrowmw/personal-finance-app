@@ -2,19 +2,13 @@
 {% block content %}
 <h1>Welcome to Your Personal Finance App</h1>
 
-<!-- Button to connect a bank account -->
 <div>
-    <button id="link-button" class="btn btn-primary">Connect Bank Account</button>
-</div>
-
-<!-- Button to get transactions -->
-<div>
-    <button id="transactions-button" class="btn btn-secondary" disabled>Get Transactions</button>
-</div>
-
-<!-- Button to get balance -->
-<div>
-    <button id="balance-button" class="btn btn-secondary" disabled>Get Balance</button>
+    <!-- Button to connect a bank account -->
+    <button id="link-button" class="btn btn-primary mb-3">Connect Bank Account</button>
+    <!-- Button to get transactions -->
+    <button id="transactions-button" class="btn btn-secondary mb-3" disabled>Get Transactions</button>
+    <!-- Button to get balance -->
+    <button id="balance-button" class="btn btn-secondary mb-3" disabled>Get Balance</button>
 </div>
 
 <!-- The Dash app will be embedded here -->
@@ -81,6 +75,7 @@
 
             // Set up event listener for the connect button
             document.getElementById('link-button').addEventListener('click', function () {
+                console.log("Connect Bank Account button clicked, opening Plaid link...");
                 handler.open();
             });
         })

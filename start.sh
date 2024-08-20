@@ -1,22 +1,35 @@
-#!/bin/bash
+# /start.sh
 
 # Remove existing cursor file
-rm application/backend/cursor.json
-rm application/data/balance.pkl
-rm application/data/transactions.pkl
+rm -f application/backend/cursor.json
+rm -f application/data/balance.pkl
+rm -f application/data/transactions.pkl
 
-# Kill any process currently using port 5030 (backend)
-PORT=5030
-PID=$(lsof -t -i:$PORT)
-if [ ! -z "$PID" ]; then
-    echo "Killing process $PID using port $PORT"
-    kill -9 $PID
+# Kill any process currently using port 5010 (frontend)
+FRONTEND_PORT=5010
+FRONTEND_PIDS=$(lsof -t -i:$FRONTEND_PORT)
+if [ ! -z "$FRONTEND_PIDS" ]; then
+    echo "Killing processes using port $FRONTEND_PORT"
+    kill -9 $FRONTEND_PIDS
 fi
 
-# Start the backend server with unbuffered output
-PYTHONUNBUFFERED=1
-export FLASK_APP=application/backend/src/server.py
-flask run --host=0.0.0.0 --port=5030 > backend.log 2>&1 &
+# Kill any process currently using port 5030 (backend)
+BACKEND_PORT=5030
+BACKEND_PIDS=$(lsof -t -i:$BACKEND_PORT)
+if [ ! -z "$BACKEND_PIDS" ]; then
+    echo "Killing processes using port $BACKEND_PORT"
+    kill -9 $BACKEND_PIDS
+fi
+
+sleep 1
+
+# Export environment variables for Flask
+export FLASK_APP=application/backend/run.py
+export FLASK_DEBUG=1
+
+# Start the backend server in the background
+flask run --host=localhost --port=5030 > backend.log 2>&1 &
+BACKEND_PID=$!
 
 # Wait for the backend server to start
 sleep 2
@@ -24,5 +37,20 @@ sleep 2
 # Tail the backend log file to see logs in real-time
 tail -f backend.log &
 
-# Start the frontend server
-poetry run python application/frontend/run.py
+# Export environment variables for Flask frontend
+export FLASK_APP=application/frontend/run.py
+export FLASK_DEBUG=1
+
+# Start the frontend server in the background
+flask run --host=localhost --port=5010 > frontend.log 2>&1 &
+FRONTEND_PID=$!
+
+# Wait for the frontend server to start
+sleep 2
+
+# Tail the frontend log file to see logs in real-time
+tail -f frontend.log &
+
+# Wait for the frontend and backend servers to finish
+wait $FRONTEND_PID
+wait $BACKEND_PID

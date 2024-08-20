@@ -1,0 +1,15 @@
+{% extends "layout.html" %}
+{% block content %}
+<article class="media content-section gradient-border">
+    <img class="rounded-circle article-img mb-3"
+        src="{{ url_for('static', filename='profile_pics/' + post.author.image_file) }}">
+    <div class="media-body">
+        <h2 class="'article-title">{{ post.title }}</h2>
+        <div class="text-muted mb-3">
+            <a class="mr-2" href></a>
+            <small>{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+        </div>
+        <p class="article-content">{{ post.content }}</p>
+    </div>
+</article>
+{% endblock content %}

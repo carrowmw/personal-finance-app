@@ -1,6 +1,6 @@
-# application/backend/src/server.py
+# application/backend/src/routes.py
 
-from flask import Flask, request, jsonify
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 import plaid
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
@@ -22,8 +22,13 @@ from application.backend.src.utils import (
     format_error,
 )
 
-app = Flask(__name__)
-CORS(app)
+backend = Blueprint("backend", __name__)
+CORS(
+    backend,
+    resources={
+        r"/api/*": {"origins": ["http://192.0.0.2:5010", "http://localhost:5010"]}
+    },
+)
 
 # Load environment variables
 env_vars = get_env_variables()
@@ -35,7 +40,7 @@ products = env_vars["PLAID_PRODUCTS"]
 client = initialize_plaid_client()
 
 
-@app.route("/api/check_access_token", methods=["GET"])
+@backend.route("/api/check_access_token", methods=["GET"])
 def check_access_token():
     access_token = load_access_token()
     if access_token:
@@ -44,7 +49,7 @@ def check_access_token():
         return jsonify({"error": "No access token found"}), 404
 
 
-@app.route("/api/create_link_token", methods=["GET"])
+@backend.route("/api/create_link_token", methods=["GET"])
 def api_create_link_token():
     link_token = create_link_token(client, user_id, country_codes, products)
     if link_token:
@@ -54,7 +59,7 @@ def api_create_link_token():
         return jsonify({"error": "Failed to create link token"}), 500
 
 
-@app.route("/api/exchange_public_token", methods=["POST"])
+@backend.route("/api/exchange_public_token", methods=["POST"])
 def api_exchange_public_token():
     public_token = request.json.get("public_token")
     if not public_token:
@@ -73,7 +78,7 @@ def api_exchange_public_token():
         )
 
 
-@app.route("/api/transactions", methods=["POST"])
+@backend.route("/api/transactions", methods=["POST"])
 def api_get_transactions():
     access_token = load_access_token()
     if not access_token:
@@ -107,7 +112,7 @@ def api_get_transactions():
             has_more = response["has_more"]
 
         # Print transactions
-        pretty_print_response(added)
+        # pretty_print_response(added)
 
         # Save transactions to file
         save_transactions(added)
@@ -122,18 +127,16 @@ def api_get_transactions():
         return jsonify(error_response)
 
 
-@app.route("/api/balance", methods=["POST"])
+@backend.route("/api/balance", methods=["POST"])
 def api_get_balance():
     access_token = load_access_token()
     try:
         request = AccountsBalanceGetRequest(access_token=access_token)
         response = client.accounts_balance_get(request)
-        pretty_print_response(response.to_dict())
+
+        # pretty_print_response(response.to_dict())
         save_balance(response.to_dict())
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
         error_response = format_error(e)
         return jsonify(error_response)
-
-if __name__ == "__main__":
-    app.run(port=5030)

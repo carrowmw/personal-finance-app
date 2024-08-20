@@ -1,0 +1,11 @@
+# application/backend/run.py
+
+from application.backend.src import create_backend_app
+
+app = create_backend_app()
+print(
+    "Debug mode for backend is", app.debug
+)  # This will output the debug status when the app starts
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5030)

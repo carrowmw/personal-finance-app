@@ -62,14 +62,3 @@ def exchange_public_token(client: object, public_token):
     except plaid.exceptions.ApiException as e:
         print(f"Exception when calling PlaidApi: {e}")
         return None
-
-
-# def get_balance(client: object, access_token):
-#     try:
-#         request = AccountsBalanceGetRequest(access_token=access_token)
-#         response = client.accounts_balance_get(request)
-#         return response["accounts"]
-
-#     except plaid.exceptions.ApiException as e:
-#         print(f"Exception when calling PlaidApi: {e}")
-#         return None

@@ -1,0 +1,191 @@
+/* application/frontend/src/static/main.css */
+:root {
+    /* Primary Colors */
+    --dark-blue: #051435;
+    --rich-blue: #003a65;
+    --mid-blue: #0073bc;
+    --bright-blue: #29b7ea;
+    --light-blue: #8ed8f8;
+    --white: #ffffff;
+
+    /* Accent Colors */
+    --red: #da1a35;
+    --teal: #00a39b;
+    --yellow: #fdc82f;
+
+    /* Tints */
+    --lighter-blue: #92acca;
+    --very-light-blue: #aac7dc;
+}
+
+
+body {
+    background: #fafafa;
+    color: #333333;
+    margin-top: 5rem;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: #444444;
+}
+
+.bg-steel {
+    background-color: #5f788a;
+}
+
+.site-header .navbar-nav .nav-link {
+    color: #cbd5db;
+}
+
+.site-header .navbar-nav .nav-link:hover {
+    color: #ffffff;
+}
+
+.site-header .navbar-nav .nav-link.active {
+    font-weight: 500;
+}
+
+.content-section {
+    background: #ffffff;
+    padding: 10px 20px;
+    border: 1px solid #dddddd;
+    margin-bottom: 20px;
+    border-radius: 20px;
+}
+
+.article-title {
+    color: #444444;
+}
+
+a.article-title:hover {
+    color: #428bca;
+    text-decoration: none;
+}
+
+.article-content {
+    white-space: pre-line;
+}
+
+.article-img {
+    height: 40px;
+    width: 40px;
+    margin-right: 16px;
+}
+
+.article-metadata {
+    padding-bottom: 1px;
+    margin-bottom: 4px;
+    border-bottom: 1px solid #e3e3e3
+}
+
+.article-metadata a:hover {
+    color: #333;
+    text-decoration: none;
+}
+
+.article-svg {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+}
+
+.account-img {
+    height: 125px;
+    width: 125px;
+    margin-right: 20px;
+    margin-bottom: 16px;
+}
+
+.account-heading {
+    font-size: 2.5rem;
+}
+
+/* Gradient border with rounded corners */
+.gradient-border {
+    position: relative;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(to right, var(--red), var(--yellow), var(--teal));
+}
+
+
+
+/* Smooth gradient border with rounded corners */
+.smooth-gradient-border {
+    position: relative;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.smooth-gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(45deg, var(--red), var(--yellow), var(--teal));
+}
+
+/* Animated gradient border with rounded corners */
+@keyframes movingGradient {
+    0% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+.animated-gradient-border {
+    position: relative;
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.animated-gradient-border::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    margin: -2px;
+    border-radius: inherit;
+    background: linear-gradient(60deg, var(--red), var(--yellow), var(--teal));
+    background-size: 300% 300%;
+    animation: movingGradient 12s ease infinite;
+}
+
+/* Add a white background to the content area */
+.gradient-border,
+.smooth-gradient-border,
+.animated-gradient-border {
+    background: white;
+}
