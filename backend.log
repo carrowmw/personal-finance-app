@@ -7,23 +7,11 @@ Debug mode for backend is True
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:10] "OPTIONS /api/transactions HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:11] "OPTIONS /api/balance HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:12] "POST /api/balance HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "POST /api/transactions HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "GET /api/create_link_token HTTP/1.1" 200 -
- * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /api/check_access_token HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:31] "GET /api/create_link_token HTTP/1.1" 200 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/__init__.py', reloading
 Debug mode for backend is True
-Successfully created link token: link-sandbox-9a7576d2-9187-490d-804f-50c998519cfe
-<_io.BufferedWriter name='./application/data/transactions.pkl'>
-<class '_io.BufferedWriter'>
-Successfully created link token: link-sandbox-c6fe470f-919b-4126-b5e8-570696828afa
-Successfully created link token: link-sandbox-546e33bc-a60a-476e-bd75-6cbedf0b490b
+Successfully created link token: link-sandbox-42dd9142-e7eb-4b5e-98cc-38129b9af9b8
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
@@ -32,16 +20,10 @@ Debug mode for backend is True
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
-127.0.0.1 - - [14/Aug/2024 17:48:10] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:11] "GET /api/create_link_token HTTP/1.1" 200 -
- * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
-Debug mode for backend is True
-Successfully created link token: link-sandbox-0303decb-b89d-47f4-aa6b-b13e72ec3b8b
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 421-033-403
  * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
 Debug mode for backend is True
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
+127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /api/check_access_token HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /api/create_link_token HTTP/1.1" 200 -

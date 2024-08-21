@@ -12,46 +12,21 @@ Debug mode for frontend is True
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/ HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/dash/deps/polyfill@7.v2_17_1m1722603636.12.1.min.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/dash/deps/react-dom@16.v2_17_1m1722603636.14.0.min.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v1_6_0m1722868190.min.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v2_17_1m1722603636.min.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/dash/dcc/dash_core_components.v2_14_1m1722603636.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/dash/html/dash_html_components.v2_0_18m1722603636.min.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-layout HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "GET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "POST /dash/_dash-update-component HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:05] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /dash/ HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /dash/_dash-layout HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "GET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:13] "POST /dash/_dash-update-component HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:20] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "GET /dash/ HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "GET /dash/_dash-layout HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:44:35] "POST /dash/_dash-update-component HTTP/1.1" 200 -
- * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+127.0.0.1 - - [20/Aug/2024 18:23:30] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:23:30] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:42] "GET /posts HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:23:42] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:23:42] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:23:42] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:24:25] "[33mGET /posts/?page=2 HTTP/1.1[0m" 404 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/__init__.py', reloading
 No balance found
 No balance found
 No transactions found
@@ -69,49 +44,34 @@ No transactions found
 No transactions found
 No transactions found
 No transactions found
-No transactions found
-No transactions found
-No transactions found
-No transactions found
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
  * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+No balance found
+No balance found
+No transactions found
+No transactions found
+No transactions found
 Debug mode for frontend is True
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
-127.0.0.1 - - [14/Aug/2024 17:48:02] "GET /login HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:02] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[32mPOST /login HTTP/1.1[0m" 302 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "GET /home HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "GET /dash/ HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "GET /dash/_dash-layout HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:10] "POST /dash/_dash-update-component HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:18] "GET /posts HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:18] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:18] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:18] "GET /static/profile_pics/default.png HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:43] "[33mGET /posts/update HTTP/1.1[0m" 404 -
-127.0.0.1 - - [14/Aug/2024 17:48:57] "GET /post/1 HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:48:57] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:48:57] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
-127.0.0.1 - - [14/Aug/2024 17:49:01] "GET /post/1/update HTTP/1.1" 200 -
-127.0.0.1 - - [14/Aug/2024 17:49:01] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
- * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
-Debug mode for frontend is True
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 421-033-403
- * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
-Debug mode for frontend is True
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 421-033-403
+127.0.0.1 - - [20/Aug/2024 18:25:10] "GET /posts?page=2 HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:10] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:10] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:14] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:14] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:14] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:21] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:21] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:21] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /home HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [20/Aug/2024 18:25:22] "POST /dash/_dash-update-component HTTP/1.1" 200 -
