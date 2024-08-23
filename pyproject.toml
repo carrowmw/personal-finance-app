@@ -21,6 +21,7 @@ dash-bootstrap-components = "^1.6.0"
 flask-bcrypt = "^1.0.1"
 flask-login = "^0.6.3"
 pillow = "^10.4.0"
+itsdangerous = "^2.2.0"
 
 [tool.poetry.scripts]
 start = "src.app:main"

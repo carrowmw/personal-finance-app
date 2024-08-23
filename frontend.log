@@ -12,41 +12,433 @@ Debug mode for frontend is True
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
-127.0.0.1 - - [20/Aug/2024 18:23:30] "GET / HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /dash/ HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /dash/_dash-layout HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:23:30] "POST /dash/_dash-update-component HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:23:42] "GET /posts HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:23:42] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:23:42] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:23:42] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:24:25] "[33mGET /posts/?page=2 HTTP/1.1[0m" 404 -
- * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/__init__.py', reloading
-No balance found
-No balance found
-No transactions found
-No transactions found
-No transactions found
-Debug mode for frontend is True
-No balance found
-No balance found
-No transactions found
-No transactions found
-No transactions found
-No balance found
-No balance found
-No transactions found
-No transactions found
-No transactions found
-No transactions found
- * Restarting with stat
- * Debugger is active!
- * Debugger PIN: 421-033-403
+127.0.0.1 - - [22/Aug/2024 20:30:53] "[33mGET /post/1/update HTTP/1.1[0m" 404 -
+127.0.0.1 - - [22/Aug/2024 20:30:55] "[33mGET /post/1/update HTTP/1.1[0m" 404 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash/deps/polyfill@7.v2_17_1m1722603636.12.1.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash/html/dash_html_components.v2_0_18m1722603636.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash/deps/react-dom@16.v2_17_1m1722603636.14.0.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash_bootstrap_components/_components/dash_bootstrap_components.v1_6_0m1722868190.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash/dash_table/bundle.v5_2_11m1722603636.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash/dash-renderer/build/dash_renderer.v2_17_1m1722603636.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/dash/dcc/dash_core_components.v2_14_1m1722603636.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "GET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:02] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:29] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:44] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:44] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:44] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:44] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:44] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:45] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:45] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:45] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:31:45] "GET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:45] "GET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:31:45] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:35:18] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:49:55] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 27, in template
+    {% endblock content %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'.
+127.0.0.1 - - [22/Aug/2024 20:49:55] "GET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:49:55] "GET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:49:55] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:49:55] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:49:57] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 27, in template
+    {% endblock content %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'elif' or 'else' or 'endif'. The innermost block that needs to be closed is 'if'.
+127.0.0.1 - - [22/Aug/2024 20:49:57] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:49:57] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:49:57] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:49:57] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:40] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 28, in template
+    {% endblock content %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'endfor' or 'else'. The innermost block that needs to be closed is 'for'.
+127.0.0.1 - - [22/Aug/2024 20:50:40] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:40] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:40] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:40] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:41] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 28, in template
+    {% endblock content %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'endfor' or 'else'. The innermost block that needs to be closed is 'for'.
+127.0.0.1 - - [22/Aug/2024 20:50:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:50:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:13] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 28, in template
+    {% endblock content %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'endfor' or 'else'. The innermost block that needs to be closed is 'for'.
+127.0.0.1 - - [22/Aug/2024 20:52:13] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:13] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:13] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:13] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:14] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:14] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:14] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:14] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:14] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:52:15] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 149, in render_template
+    template = app.jinja_env.get_or_select_template(template_name_or_list)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1084, in get_or_select_template
+    return self.get_template(template_name_or_list, parent, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1013, in get_template
+    return self._load_template(name, globals)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 972, in _load_template
+    template = self.loader.load(self, name, self.make_globals(globals))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/loaders.py", line 138, in load
+    code = environment.compile(source, name, filename)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 768, in compile
+    self.handle_exception(source=source_hint)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 28, in template
+    {% endblock content %}
+jinja2.exceptions.TemplateSyntaxError: Encountered unknown tag 'endblock'. You probably made a nesting mistake. Jinja is expecting this tag, but currently looking for 'endfor' or 'else'. The innermost block that needs to be closed is 'for'.
+127.0.0.1 - - [22/Aug/2024 20:52:15] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:15] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:52:15] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:04] "[35m[1mGET /posts HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 1, in top-level template code
+    {% extends 'layout.html' %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/layout.html", line 68, in top-level template code
+    {% block content %}{% endblock %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 23, in block 'content'
+    <a class="btn btn-outline-info mb-4" href="{{ url_for('posts', page=page_num) }}">{{ page_num }}</a>
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'posts' with values ['page']. Did you mean 'frontend.posts' instead?
+127.0.0.1 - - [22/Aug/2024 20:53:04] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:04] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:04] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:04] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:29] "GET /posts HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:53:29] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:29] "GET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:53:29] "GET /static/profile_pics/default.png HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:53:34] "GET /posts?page=2 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:53:34] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:34] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:36] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:53:36] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:36] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:37] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:53:37] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:37] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:53:37] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:10] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:54:10] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:10] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:10] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:12] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:54:12] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:12] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:12] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:14] "GET /posts?page=2 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:54:14] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:14] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:16] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:54:16] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:54:16] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
  * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
 No balance found
 No balance found
@@ -54,24 +446,347 @@ No transactions found
 No transactions found
 No transactions found
 Debug mode for frontend is True
+No balance found
+No balance found
+No transactions found
+No transactions found
+No transactions found
+No balance found
+No balance found
+No transactions found
+No transactions found
+No transactions found
+No transactions found
+No balance found
+No balance found
+No transactions found
+No transactions found
+No transactions found
+No transactions found
+No transactions found
+No transactions found
+No transactions found
+No transactions found
  * Restarting with stat
  * Debugger is active!
  * Debugger PIN: 421-033-403
-127.0.0.1 - - [20/Aug/2024 18:25:10] "GET /posts?page=2 HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:10] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:10] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:14] "GET /posts?page=3 HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:14] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:14] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:21] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:21] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:21] "POST /dash/_dash-update-component HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /home HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /dash/ HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "GET /dash/_dash-layout HTTP/1.1" 200 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
-127.0.0.1 - - [20/Aug/2024 18:25:22] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:55:00] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:55:00] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:55:00] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:55:06] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 20:55:06] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:55:06] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 20:55:06] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:36] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:00:36] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:36] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:36] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:39] "GET /posts?page=2 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:00:39] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:39] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:40] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:00:40] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:40] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:42] "GET /posts?page=4 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:00:42] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:42] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:45] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:00:45] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:45] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:48] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:00:48] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:48] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:00:48] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+Debug mode for frontend is True
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 421-033-403
+127.0.0.1 - - [22/Aug/2024 21:01:01] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:01:01] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:01] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:01] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:04] "GET /posts?page=6 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:01:04] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:04] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:05] "GET /posts?page=5 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:01:05] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:05] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:07] "GET /posts?page=4 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:01:07] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:07] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:08] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:01:08] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:08] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:01:08] "[36mGET /static/profile_pics/c25f13bb24d9045f.png HTTP/1.1[0m" 304 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+Debug mode for frontend is True
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 421-033-403
+127.0.0.1 - - [22/Aug/2024 21:03:22] "GET /posts?page=1 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:03:22] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:03:22] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:03:23] "GET /posts HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:03:23] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:03:23] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:03:47] "GET /post/new HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:03:47] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[32mPOST /post/new HTTP/1.1[0m" 302 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "GET /home HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:01] "POST /dash/_dash-update-component HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:04:02] "GET /posts HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:04:02] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:04:02] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:05] "GET /posts?page=2 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:06:05] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:05] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:07] "GET /posts?page=3 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:06:07] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:07] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:08] "GET /posts?page=4 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:06:08] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:08] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:11] "GET /posts?page=5 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:06:11] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:06:11] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+Debug mode for frontend is True
+ * Restarting with stat
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/cli.py", line 937, in run_command
+    app: WSGIApplication = info.load_app()
+                           ^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/cli.py", line 335, in load_app
+    app = locate_app(import_name, name)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/cli.py", line 245, in locate_app
+    __import__(module_name)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/run.py", line 5, in <module>
+    app = create_app()
+          ^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/__init__.py", line 40, in create_app
+    app.register_blueprint(frontend)  # Register frontend routes
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/app.py", line 595, in register_blueprint
+    blueprint.register(self, options)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/blueprints.py", line 335, in register
+    deferred(state)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/blueprints.py", line 434, in <lambda>
+    lambda s: s.add_url_rule(
+              ^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/blueprints.py", line 110, in add_url_rule
+    self.app.add_url_rule(
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/scaffold.py", line 47, in wrapper_func
+    return f(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/sansio/app.py", line 653, in add_url_rule
+    self.url_map.add(rule_obj)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 177, in add
+    rule.bind(self)
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/rules.py", line 571, in bind
+    self.compile()
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/rules.py", line 716, in compile
+    self._parts.extend(self._parse_rule(rule))
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/rules.py", line 622, in _parse_rule
+    convobj = self.get_converter(
+              ^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/rules.py", line 585, in get_converter
+    raise LookupError(f"the converter {converter_name!r} does not exist")
+LookupError: the converter 'str' does not exist
+ * Debugger is active!
+ * Debugger PIN: 964-757-042
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 421-033-403
+127.0.0.1 - - [22/Aug/2024 21:31:02] "[35m[1mGET /posts?page=5 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 1, in top-level template code
+    {% extends 'layout.html' %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/layout.html", line 68, in top-level template code
+    {% block content %}{% endblock %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 14, in block 'content'
+    <a class="mr-2" href="{{ url_for('frontend.user_posts', username=post.author.username) }}">{{
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'frontend.user_posts' with values ['username']. Did you mean 'frontend.user_post' instead?
+127.0.0.1 - - [22/Aug/2024 21:31:02] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:31:02] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:31:02] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:31:02] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:41] "[35m[1mGET /posts?page=5 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 1, in top-level template code
+    {% extends 'layout.html' %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/layout.html", line 68, in top-level template code
+    {% block content %}{% endblock %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 14, in block 'content'
+    <a class="mr-2" href="{{ url_for('frontend.user_posts', username=post.author.username) }}">{{
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'frontend.user_posts' with values ['username']. Did you mean 'frontend.user_post' instead?
+127.0.0.1 - - [22/Aug/2024 21:32:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:41] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:42] "[35m[1mGET /posts?page=5 HTTP/1.1[0m" 500 -
+Traceback (most recent call last):
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1498, in __call__
+    return self.wsgi_app(environ, start_response)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1476, in wsgi_app
+    response = self.handle_exception(e)
+               ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1473, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 882, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 880, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 865, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py", line 29, in posts
+    return render_template("posts.html", posts=posts)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 150, in render_template
+    return _render(app, template, context)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/templating.py", line 131, in _render
+    rv = template.render(context)
+         ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 1304, in render
+    self.environment.handle_exception()
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/jinja2/environment.py", line 939, in handle_exception
+    raise rewrite_traceback_stack(source=source)
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 1, in top-level template code
+    {% extends 'layout.html' %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/layout.html", line 68, in top-level template code
+    {% block content %}{% endblock %}
+  File "/Users/administrator/Code/python/personal-finances/application/frontend/src/templates/posts.html", line 14, in block 'content'
+    <a class="mr-2" href="{{ url_for('frontend.user_posts', username=post.author.username) }}">{{
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1084, in url_for
+    return self.handle_url_build_error(error, endpoint, values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/flask/app.py", line 1073, in url_for
+    rv = url_adapter.build(  # type: ignore[union-attr]
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/administrator/Code/python/personal-finances/.venv/lib/python3.12/site-packages/werkzeug/routing/map.py", line 924, in build
+    raise BuildError(endpoint, values, method, self)
+werkzeug.routing.exceptions.BuildError: Could not build url for endpoint 'frontend.user_posts' with values ['username']. Did you mean 'frontend.user_post' instead?
+127.0.0.1 - - [22/Aug/2024 21:32:42] "[36mGET /posts?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:42] "[36mGET /posts?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:42] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:32:42] "[36mGET /posts?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1[0m" 304 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/application/frontend/src/routes.py', reloading
+Debug mode for frontend is True
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 421-033-403
+127.0.0.1 - - [22/Aug/2024 21:33:13] "GET /posts?page=5 HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:33:14] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:33:14] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:33:16] "GET /user/steviewonder HTTP/1.1" 200 -
+127.0.0.1 - - [22/Aug/2024 21:33:16] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [22/Aug/2024 21:33:16] "[36mGET /static/profile_pics/default.png HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:01] "GET /home HTTP/1.1" 200 -
+127.0.0.1 - - [23/Aug/2024 06:26:01] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "GET /dash/ HTTP/1.1" 200 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "[36mGET /static/main.css HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "GET /dash/_dash-dependencies HTTP/1.1" 200 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "GET /dash/_dash-layout HTTP/1.1" 200 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-table.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "[36mGET /dash/_dash-component-suites/dash/dcc/async-graph.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "[36mGET /dash/_dash-component-suites/dash/dash_table/async-highlight.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "[36mGET /dash/_dash-component-suites/plotly/package_data/plotly.min.js HTTP/1.1[0m" 304 -
+127.0.0.1 - - [23/Aug/2024 06:26:02] "POST /dash/_dash-update-component HTTP/1.1" 200 -
