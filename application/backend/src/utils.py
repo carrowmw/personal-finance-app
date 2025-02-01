@@ -4,7 +4,7 @@ import os
 import json
 import pickle
 
-ENV_PATH = "./application/backend/.env"
+ENV_PATH = "./.env"
 ACCESS_TOKEN_FILE = "./application/backend/access_token.json"
 CURSOR_FILE = "./application/backend/cursor.json"
 TRANSACTIONS_FILE = "./application/data/transactions.pkl"
