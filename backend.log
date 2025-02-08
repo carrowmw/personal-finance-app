@@ -6,25 +6,26 @@ Debug mode for backend is True
 [33mPress CTRL+C to quit[0m
  * Restarting with stat
  * Debugger is active!
- * Debugger PIN: 168-505-435
-127.0.0.1 - - [20/Sep/2024 22:54:07] "[33mGET / HTTP/1.1[0m" 404 -
-127.0.0.1 - - [20/Sep/2024 22:54:07] "[33mGET /favicon.ico HTTP/1.1[0m" 404 -
-127.0.0.1 - - [20/Sep/2024 22:54:09] "[33mGET / HTTP/1.1[0m" 404 -
-127.0.0.1 - - [20/Sep/2024 22:54:17] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:54:17] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:18] "OPTIONS /api/exchange_public_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:18] "POST /api/exchange_public_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:20] "OPTIONS /api/transactions HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:22] "POST /api/transactions HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:23] "OPTIONS /api/balance HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:25] "POST /api/balance HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:28] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:55:28] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:56:54] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:56:54] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:58:29] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:58:29] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:58:41] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [20/Sep/2024 22:58:41] "GET /api/create_link_token HTTP/1.1" 200 -
-127.0.0.1 - - [23/Sep/2024 09:53:30] "GET /api/check_access_token HTTP/1.1" 200 -
-127.0.0.1 - - [23/Sep/2024 09:53:30] "GET /api/create_link_token HTTP/1.1" 200 -
+ * Debugger PIN: 559-758-990
+127.0.0.1 - - [08/Feb/2025 12:33:52] "OPTIONS /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:33:55] "POST /api/transactions HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:34:13] "OPTIONS /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:34:15] "POST /api/balance HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:34:21] "GET /api/check_access_token HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:34:21] "GET /api/create_link_token HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:39:01] "GET /api/check_access_token HTTP/1.1" 200 -
+127.0.0.1 - - [08/Feb/2025 12:39:02] "GET /api/create_link_token HTTP/1.1" 200 -
+ * Detected change in '/Users/administrator/Code/python/personal-finances/build/application/frontend/src/errors/__init__.py', reloading
+Debug mode for backend is True
+<_io.BufferedWriter name='./application/data/transactions.pkl'>
+<class '_io.BufferedWriter'>
+Successfully created link token: link-sandbox-b6439209-0c92-4e9c-b667-ce530b141b8d
+Successfully created link token: link-sandbox-10f7a587-f737-4847-9cf8-a6e0a0eafeca
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 559-758-990
+ * Detected change in '/Users/administrator/Code/python/personal-finances/build/setup.py', reloading
+Debug mode for backend is True
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 559-758-990

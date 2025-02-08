@@ -58,17 +58,6 @@ def load_cursor():
     return ""
 
 
-def get_env_variables():
-    env_vars = {}
-    with open(ENV_PATH, encoding="utf8") as f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            key, value = line.strip().split("=")
-            env_vars[key] = value
-    return env_vars
-
-
 def save_access_token(access_token):
     with open(ACCESS_TOKEN_FILE, "w", encoding="utf8") as f:
         json.dump({"access_token": access_token}, f)

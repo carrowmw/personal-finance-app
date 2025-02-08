@@ -11,8 +11,6 @@ from application.backend.src.plaid_service import (
     initialize_plaid_client,
 )
 from application.backend.src.utils import (
-    pretty_print_response,
-    get_env_variables,
     save_access_token,
     load_access_token,
     save_cursor,
@@ -21,6 +19,7 @@ from application.backend.src.utils import (
     save_balance,
     format_error,
 )
+from application.backend.src.config import BackendConfig as Config
 
 backend = Blueprint("backend", __name__)
 CORS(
@@ -31,10 +30,10 @@ CORS(
 )
 
 # Load environment variables
-env_vars = get_env_variables()
-user_id = env_vars["PLAID_USER_ID"]
-country_codes = env_vars["PLAID_COUNTRY_CODES"]
-products = env_vars["PLAID_PRODUCTS"]
+Config.validate()
+user_id = Config.PLAID_USER_ID
+country_codes = Config.PLAID_COUNTRY_CODES
+products = Config.PLAID_PRODUCTS
 
 # Initialize Plaid client
 client = initialize_plaid_client()

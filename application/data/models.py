@@ -30,28 +30,28 @@ class User(db.Model, UserMixin):
 
         try:
             s = Serializer(
-                secret_key=current_app.config["SECRET_KEY"], 
-                salt='reset-password', # typically a rondom string would go here
-                signer_kwargs={"key_derivation": "hmac"}
-                )
+                secret_key=current_app.config["APP_SECRET_KEY"],
+                salt="reset-password",  # typically a rondom string would go here
+                signer_kwargs={"key_derivation": "hmac"},
+            )
 
             token = s.dumps({"user_id": self.id})
             print("Generated Token: {token}")
             return token
         except Exception as e:
             print(f"Error in token generation: {str(e)}")
-            raise        
+            raise
 
     @staticmethod  # This is a static method, it does not take self as an argument
     # Verify the token
     def verify_reset_token(token):
         print("Debug - Token Verification:")
         print(f"Received Token: {token}")
-    
+
         try:
             s = Serializer(
-                secret_key=current_app.config["SECRET_KEY"],
-                salt='reset-password', # typically a rondom string would go here (needs to be same as above)
+                secret_key=current_app.config["APP_SECRET_KEY"],
+                salt="reset-password",  # typically a rondom string would go here (needs to be same as above)
                 signer_kwargs={"key_derivation": "hmac"},
             )
             user_id = s.loads(token, max_age=1800)["user_id"]
@@ -63,7 +63,10 @@ class User(db.Model, UserMixin):
 
     def __repr__(self):
         return f"User('{self.username}', '{self.email}', '{self.image_file}')"
+
+
 # typically a rondom string would go here
+
 
 class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
