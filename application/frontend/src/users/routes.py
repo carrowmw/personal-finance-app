@@ -13,7 +13,8 @@ from application.frontend.src import db, bcrypt
 from application.frontend.src.users.utils import save_picture, send_reset_email
 from flask_login import login_user, current_user, logout_user, login_required
 
-users = Blueprint('users', __name__)
+users = Blueprint("users", __name__)
+
 
 @users.route("/register", methods=["GET", "POST"])
 def register():
@@ -44,9 +45,7 @@ def login():
         if user and bcrypt.check_password_hash(user.password, form.password.data):
             login_user(user, remember=form.remember.data)
             next_page = request.args.get("next")
-            return (
-                redirect(next_page) if next_page else redirect(url_for("main.home"))
-            )
+            return redirect(next_page) if next_page else redirect(url_for("main.home"))
         else:
             flash("Login Unsuccessful. Please check username and password.", "danger")
     return render_template("login.html", title="Login", form=form)
@@ -56,6 +55,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for("main.home"))
+
 
 @users.route("/account", methods=["GET", "POST"])
 @login_required
@@ -78,6 +78,7 @@ def account():
         "account.html", title="Account", image_file=image_file, form=form
     )
 
+
 @users.route("/user/<string:username>")
 def user_posts(username):
     page = request.args.get("page", 1, type=int)
@@ -88,6 +89,7 @@ def user_posts(username):
         .paginate(page=page, per_page=2)
     )
     return render_template("user_posts.html", posts=posts, user=user)
+
 
 @users.route("/reset_password", methods=["GET", "POST"])
 def reset_request():

@@ -3,173 +3,255 @@
 from dash import html, dcc, dash_table, Input, Output, callback
 import dash_bootstrap_components as dbc
 import plotly.express as px
+import plotly.graph_objects as go
+from datetime import datetime, timedelta
+import pandas as pd
 
-from application.frontend.dash_app.munging import get_balance_df, get_transactions_df
+from application.data.processing import get_transactions_df, get_monthly_spending
 
 
-def create_balance_graph():
-
-    balance_df = get_balance_df()
-    if balance_df is None:
+def create_spending_overview(username):
+    """Create an overview of spending trends"""
+    df = get_transactions_df(username)
+    if df is None:
         return None
-    fig = px.bar(data_frame=balance_df, x="name", y="current", title="Current Balances")
-    return fig
 
+    # Convert date to datetime if it's not already
+    df["date"] = pd.to_datetime(df["date"])
 
-def create_transactions_by_category_data():
-    transactions_df = get_transactions_df()
-    if transactions_df is None:
-        return None
-    transactions_df = transactions_df[["category", "amount"]]
-    if transactions_df is None:
-        return None
-    grouped_data = transactions_df.groupby("category").sum()
-    return grouped_data
+    # Create monthly spending trend
+    monthly_spending = df.groupby(df["date"].dt.strftime("%Y-%m"))["amount"].sum()
 
+    fig = go.Figure()
 
-def create_transactions_by_subcategory_graph(category=None):
-    transactions_df = get_transactions_df()
-    if transactions_df is None or category is None:
-        return px.bar(title="Click a category to see subcategories")
-
-    filtered_df = transactions_df[transactions_df["category"] == category]
-    grouped_data = filtered_df.groupby("subcategory")["amount"].sum().reset_index()
-
-    fig = px.bar(
-        grouped_data,
-        x="subcategory",
-        y="amount",
-        title=f"Transactions by Subcategory for {category}",
+    # Add bar chart for monthly spending
+    fig.add_trace(
+        go.Bar(
+            x=monthly_spending.index, y=monthly_spending.values, name="Monthly Spending"
+        )
     )
+
+    # Add trend line
+    fig.add_trace(
+        go.Scatter(
+            x=monthly_spending.index,
+            y=monthly_spending.values.rolling(3).mean(),
+            name="3-Month Average",
+            line=dict(color="red"),
+        )
+    )
+
+    fig.update_layout(
+        title="Monthly Spending Overview",
+        xaxis_title="Month",
+        yaxis_title="Amount ($)",
+        hovermode="x unified",
+    )
+
     return fig
 
 
-def create_transactions_by_category_graph():
-    data = create_transactions_by_category_data()
-    if data is None:
+def create_category_sunburst(username):
+    """Create a sunburst chart of spending by category and subcategory"""
+    df = get_transactions_df(username)
+    if df is None:
         return None
-    fig = px.bar(x=data.index, y=data["amount"], title="Transactions by Category")
+
+    # Group by category and subcategory
+    grouped = df.groupby(["category", "subcategory"])["amount"].sum().reset_index()
+
+    fig = px.sunburst(
+        grouped,
+        path=["category", "subcategory"],
+        values="amount",
+        title="Spending Distribution",
+    )
+
+    fig.update_layout(width=600, height=600)
+
     return fig
 
 
-def get_balance_card():
-    balance_df = get_balance_df()
-    if balance_df is None:
-        return dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        html.H4("No balance data available", className="card-title"),
-                        html.P("Please link an account to view balance data."),
-                    ]
-                )
-            ]
-        )
-    else:
-        return dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        html.H4("Balance Data", className="card-title"),
-                        html.P("Balance data for linked accounts."),
-                        html.P(balance_df.to_dict("records")),
-                        dash_table.DataTable(
-                            id="balance-table",
-                            data=balance_df.to_dict("records"),
-                            columns=[{"name": i, "id": i} for i in balance_df.columns],
-                            page_size=4,
-                        ),
-                    ]
-                )
-            ]
-        )
+def create_transactions_by_category_graph(username):
+    """Create a bar chart of spending by category"""
+    df = get_transactions_df(username)
+    if df is None:
+        return None
+
+    # Group by category
+    category_spending = (
+        df.groupby("category")["amount"].sum().sort_values(ascending=True)
+    )
+
+    fig = go.Figure(
+        go.Bar(x=category_spending.values, y=category_spending.index, orientation="h")
+    )
+
+    fig.update_layout(
+        title="Spending by Category",
+        xaxis_title="Amount ($)",
+        yaxis_title="Category",
+        height=400
+        + (len(category_spending) * 20),  # Adjust height based on number of categories
+    )
+
+    return fig
 
 
-def get_transactions_card():
-    transactions = get_transactions_df()
-    if transactions is None:
-        return dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        html.H4(
-                            "No transactions data available", className="card-title"
-                        ),
-                        html.P("Please link an account to view transactions data."),
-                    ]
-                )
-            ]
-        )
-    else:
-        return dbc.Card(
-            [
-                dbc.CardBody(
-                    [
-                        html.H4("Transactions Data", className="card-title"),
-                        html.P("Transactions data for linked accounts."),
-                        html.Div(
-                            dash_table.DataTable(
-                                id="transactions-table",
-                                data=transactions.to_dict("records"),
-                                columns=[
-                                    {"name": i, "id": i} for i in transactions.columns
-                                ][:8],
-                                page_size=8,
-                            ),
-                        ),
-                    ]
-                )
-            ]
-        )
+def create_recent_transactions_table(username):
+    """Create a table of recent transactions"""
+    df = get_transactions_df(username)
+    if df is None:
+        return None
+
+    # Sort by date and get recent transactions
+    recent_df = df.sort_values("date", ascending=False).head(10)
+
+    # Format amounts as currency
+    recent_df["amount"] = recent_df["amount"].apply(lambda x: f"${x:,.2f}")
+
+    return dash_table.DataTable(
+        id="recent-transactions",
+        columns=[
+            {"name": "Date", "id": "date"},
+            {"name": "Name", "id": "name"},
+            {"name": "Amount", "id": "amount"},
+            {"name": "Category", "id": "category"},
+            {"name": "Subcategory", "id": "subcategory"},
+        ],
+        data=recent_df.to_dict("records"),
+        style_table={"overflowX": "auto"},
+        style_cell={"textAlign": "left", "padding": "10px", "minWidth": "100px"},
+        style_header={"backgroundColor": "rgb(230, 230, 230)", "fontWeight": "bold"},
+    )
 
 
-def create_layout():
-    # Example of a simple Plotly Dash layout
-
+def create_layout(username):
+    """Create the main dashboard layout"""
     return html.Div(
-        children=[
-            html.Div(
-                children=[
-                    get_balance_card(),
-                ]
-            ),
-            html.Div(
-                children=[
-                    dcc.Graph(id="balance-graph", figure=create_balance_graph()),
-                ]
-            ),
-            html.Div(
-                children=[
-                    get_transactions_card(),
-                ]
-            ),
-            html.Div(
-                children=[
-                    dcc.Graph(
-                        id="transactions-by-category-graph",
-                        figure=create_transactions_by_category_graph(),
+        [
+            dbc.Container(
+                [
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    html.H1(
+                                        "Financial Dashboard",
+                                        className="text-center mb-4",
+                                    ),
+                                ],
+                                width=12,
+                            )
+                        ]
                     ),
-                ]
-            ),
-            html.Div(
-                children=[
-                    dcc.Graph(
-                        id="transactions-by-subcategory-graph",
-                        figure=create_transactions_by_subcategory_graph(),
+                    # Spending Overview
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    html.H3("Spending Overview"),
+                                                    dcc.Graph(
+                                                        id="spending-overview",
+                                                        figure=create_spending_overview(
+                                                            username
+                                                        ),
+                                                    ),
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ],
+                                width=12,
+                            )
+                        ],
+                        className="mb-4",
                     ),
-                ]
-            ),
+                    # Category Analysis
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    html.H3("Category Distribution"),
+                                                    dcc.Graph(
+                                                        id="category-sunburst",
+                                                        figure=create_category_sunburst(
+                                                            username
+                                                        ),
+                                                    ),
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ],
+                                width=6,
+                            ),
+                            dbc.Col(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    html.H3("Spending by Category"),
+                                                    dcc.Graph(
+                                                        id="category-bar",
+                                                        figure=create_transactions_by_category_graph(
+                                                            username
+                                                        ),
+                                                    ),
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ],
+                                width=6,
+                            ),
+                        ],
+                        className="mb-4",
+                    ),
+                    # Recent Transactions
+                    dbc.Row(
+                        [
+                            dbc.Col(
+                                [
+                                    dbc.Card(
+                                        [
+                                            dbc.CardBody(
+                                                [
+                                                    html.H3("Recent Transactions"),
+                                                    create_recent_transactions_table(
+                                                        username
+                                                    ),
+                                                ]
+                                            )
+                                        ]
+                                    )
+                                ],
+                                width=12,
+                            )
+                        ]
+                    ),
+                ],
+                fluid=True,
+            )
         ]
     )
 
 
+# Callbacks
 @callback(
-    Output("transactions-by-subcategory-graph", "figure"),
-    Input("transactions-by-category-graph", "clickData"),
+    Output("category-sunburst", "figure"), Input("spending-overview", "clickData")
 )
-def update_subcategory_graph(clickData):
-    if clickData is None:
-        return create_transactions_by_subcategory_graph()
-
-    category = clickData["points"][0]["x"]
-    return create_transactions_by_subcategory_graph(category)
+def update_category_view(click_data):
+    if click_data is None:
+        return create_category_sunburst()
+    # Add logic here to filter by clicked month if desired
+    return create_category_sunburst()

@@ -52,14 +52,19 @@ def create_app(config_class=Config):
         db.create_all()  # Create database tables
 
         # Import frontend routes
+        from application.frontend.src.main.routes import main  # Import main routes
+        from application.frontend.src.dashboard.routes import (
+            dashboard,
+        )  # Import dashboard routes
         from application.frontend.src.users.routes import users  # Import user routes
-        from application.frontend.src.posts.routes import posts  # Import user routes
-        from application.frontend.src.main.routes import main  # Import user routes
+        from application.frontend.src.posts.routes import posts  # Import post routes
         from application.frontend.src.errors.handlers import errors
 
-        app.register_blueprint(users)  # Register frontend routes
-        app.register_blueprint(posts)
+        # Register frontend routes
         app.register_blueprint(main)
+        app.register_blueprint(dashboard)
+        app.register_blueprint(users)
+        app.register_blueprint(posts)
         app.register_blueprint(errors)
 
         from application.frontend.dash_app import create_dash_app  # Import Dash app
