@@ -35,40 +35,33 @@ def create_app(config_class=Config):
     login_manager.init_app(app)  # Initialize login manager with app
     mail.init_app(app)  # Initialize mail with app
 
-    # After setting SECRET_KEY
-    # print(f"DEBUG: Mail Username: {app.config['MAIL_USERNAME']}")
-    # print(f"DEBUG: Mail Password is set: {'Yes' if app.config['MAIL_PASSWORD'] else 'No'}")
-    # print(f"DEBUG: Mail Password: {app.config["MAIL_PASSWORD"]}")
-    # print(f"DEBUG: Secret Key Type: {type(app.config['SECRET_KEY'])}")
-    # print(f"DEBUG: Secret Key Value: {app.config['SECRET_KEY']}")
-    # print(f"DEBUG: Database URI: {app.config['SQLALCHEMY_DATABASE_URI']}")
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
 
     with app.app_context():
-        from application.data.models import (
-            User,
-            Post,
-        )  # Import models to avoid circular imports
-
-        db.create_all()  # Create database tables
-
         # Import frontend routes
         from application.frontend.src.main.routes import main  # Import main routes
-        from application.frontend.src.dashboard.routes import (
-            dashboard,
-        )  # Import dashboard routes
+        from application.frontend.src.dashboard.routes import dashboard  # Import dashboard routes
         from application.frontend.src.users.routes import users  # Import user routes
         from application.frontend.src.posts.routes import posts  # Import post routes
         from application.frontend.src.errors.handlers import errors
-
         # Register frontend routes
         app.register_blueprint(main)
         app.register_blueprint(dashboard)
         app.register_blueprint(users)
         app.register_blueprint(posts)
         app.register_blueprint(errors)
-
-        from application.frontend.dash_app import create_dash_app  # Import Dash app
-
-        create_dash_app(app)  # Create Dash app
+        # Import models to avoid circular imports
+        from application.data.models import (
+            User,
+            Post,
+            Transaction,
+            Balance,
+        )  
+        db.create_all()  # Create database tables
+        # Initialize Dash app last
+        from application.frontend.src.dashboard import create_dash_app
+        create_dash_app(app)
 
     return app  # Return app instance

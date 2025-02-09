@@ -18,6 +18,25 @@ class BackendConfig:
     PLAID_COUNTRY_CODES = os.getenv("PLAID_COUNTRY_CODES")
     PLAID_REDIRECT_URI = os.getenv("PLAID_REDIRECT_URI", "http://localhost:5010")
 
+    # Development settings
+    DEV_MODE = True
+    
+    # API Settings
+    if DEV_MODE:
+        API_URL = 'http://localhost:5030'
+        FRONTEND_URL = 'http://localhost:5010'
+    else:
+        API_URL = 'https://api.yourapp.com'
+        FRONTEND_URL = 'https://yourapp.com'
+    
+    # CORS Settings
+    CORS_SETTINGS = {
+        'resources': {r"/api/*": {"origins": [FRONTEND_URL]}},
+        'supports_credentials': True,
+        'allow_headers': ['Content-Type', 'Authorization'],
+        'methods': ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+    }
+
     # Validate required environment variables
     @classmethod
     def validate(cls):

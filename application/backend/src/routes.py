@@ -3,6 +3,7 @@
 from datetime import datetime
 from decimal import Decimal
 from flask import Blueprint, request, jsonify, Response
+from flask_login import login_required, current_user
 from flask_cors import CORS
 import plaid
 from plaid.model.transactions_sync_request import TransactionsSyncRequest
@@ -21,7 +22,7 @@ from application.backend.src.plaid_service import (
     exchange_public_token,
     initialize_plaid_client,
 )
-from application.backend.src.utils import format_error
+from application.backend.src.errors import format_error
 from application.backend.src.config import BackendConfig as Config
 
 # Load environment variables
@@ -46,6 +47,7 @@ client = initialize_plaid_client()
 
 
 @backend.route("/api/check_access_token", methods=["GET"])
+@login_required
 def check_access_token(username):
     user = User.query.filter_by(username=username).first_or_404()
     access_token = user.access_token
@@ -56,18 +58,27 @@ def check_access_token(username):
 
 
 @backend.route("/api/create_link_token", methods=["GET"])
+@login_required
 def api_create_link_token():
-    link_token = create_link_token(
-        client, PLAID_USER_ID, PLAID_COUNTRY_CODES, PLAID_PRODUCTS
-    )
-    if link_token:
-        print(f"Successfully created link token: {link_token}")
-        return jsonify({"link_token": link_token})
-    else:
-        return jsonify({"error": "Failed to create link token"}), 500
+    try:
+        link_token = create_link_token(
+            client, 
+            str(current_user.id),  # Use current_user.id as the user identifier
+            PLAID_COUNTRY_CODES, 
+            PLAID_PRODUCTS
+        )
+        if link_token:
+            print(f"Successfully created link token: {link_token}")
+            return jsonify({"link_token": link_token})
+        else:
+            return jsonify({"error": "Failed to create link token"}), 500
+    except Exception as e:
+        print(f"Error creating link token: {str(e)}")
+        return jsonify({"error": str(e)}), 500
 
 
 @backend.route("/api/exchange_public_token", methods=["POST"])
+@login_required
 def api_exchange_public_token(username):
     public_token = request.json.get("public_token")
     if not public_token:
@@ -88,6 +99,7 @@ def api_exchange_public_token(username):
 
 
 @backend.route("/api/transactions", methods=["POST"])
+@login_required
 def api_get_transactions(username):
     user = User.query.filter_by(username=username).first_or_404()
     access_token = user.access_token
@@ -191,6 +203,7 @@ def api_get_transactions(username):
 
 
 @backend.route("/api/transactions/analysis", methods=["GET"])
+@login_required
 def transaction_analysis(username):
     """Route for getting transaction analysis"""
     try:
@@ -210,6 +223,7 @@ def transaction_analysis(username):
 
 
 @backend.route("/api/transactions/download", methods=["GET"])
+@login_required
 def download_transactions(username):
     """Route for downloading transactions as CSV"""
     try:
@@ -233,6 +247,7 @@ def download_transactions(username):
 
 
 @backend.route("/api/balance", methods=["POST"])
+@login_required
 def api_get_balance(username):
     user = User.query.filter_by(username=username).first_or_404()
     access_token = user.access_token
@@ -331,6 +346,7 @@ def api_get_balance(username):
 
 # Additional helper route to get balances without refreshing from Plaid
 @backend.route("/api/balance/cached", methods=["GET"])
+@login_required
 def get_cached_balance(username):
     try:
         user = User.query.filter_by(username=username).first_or_404()
@@ -376,3 +392,13 @@ def get_cached_balance(username):
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@backend.route("/health", methods=["GET"])
+def health_check():
+    return jsonify({
+        "status": "healthy",
+        "service": "plaid-api",
+        "version": "1.0.0",
+        "timestamp": datetime.utcnow().isoformat()
+    })

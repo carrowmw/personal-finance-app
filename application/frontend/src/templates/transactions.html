@@ -1,8 +1,9 @@
-{% extends "layout.html" %}
+<!-- application/frontend/src/templates/register.html -->
 
+{% extends "layout.html" %}
 {% block content %}
 
-<div>
+<div class="content-section">
     <!-- Button to connect a bank account -->
     <button id="link-button" class="btn btn-primary mb-3">Connect Bank Account</button>
     <!-- Button to get transactions -->
@@ -11,7 +12,7 @@
     <button id="balance-button" class="btn btn-secondary mb-3" disabled>Get Balance</button>
 </div>
 
-<div>
+<div class="content-section">
     <h2>Transactions</h2>
     <table class="table table-striped">
         <thead>
@@ -28,8 +29,8 @@
 </div>
 
 <!-- The Dash app will be embedded here -->
-<div>
-    <iframe src="/dash/" style="width: 100%; height: 600px; border: none;"></iframe>
+<div class="content-section">
+    <iframe src="/dash/" style="width: 100%; height: 2000px; border: none;"></iframe>
 </div>
 
 <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
@@ -135,4 +136,4 @@
     });
 </script>
 
-{% endblock %}
+{% endblock content %}

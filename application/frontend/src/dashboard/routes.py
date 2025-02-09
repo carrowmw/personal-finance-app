@@ -1,9 +1,8 @@
 # application/frontend/src/dashboard/routes.py
 
-from flask import Blueprint, render_template
-from flask_login import login_required
+from flask import Blueprint, redirect, url_for
+from flask_login import login_required, current_user
 
-# from application.data.models import Transactions
 from application.frontend.src import db
 
 dashboard = Blueprint("dashboard", __name__)
@@ -11,6 +10,6 @@ dashboard = Blueprint("dashboard", __name__)
 
 @dashboard.route("/dashboard", methods=["GET", "POST"])
 @login_required
-def transactions(username):
-    # transactions = Transactions.query.all()
-    return render_template("transactions.html")  # , transactions=transactions)
+def transactions():
+    # Redirect to the Dash app directly (rendering templates leads to nested pages)
+    return redirect("/dashboard/")

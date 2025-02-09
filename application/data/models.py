@@ -24,7 +24,7 @@ class User(db.Model, UserMixin):
     access_token = db.Column(db.String(120), nullable=True)
     cursor = db.Column(db.String(120), nullable=True)
     posts = db.relationship("Post", backref="author", lazy=True)
-    transactions = db.relationship("Transactions", backref="author")
+    transactions = db.relationship("Transaction", backref="author")
     balance = db.relationship("Balance", backref="author")
 
     # Generate a token for the user
