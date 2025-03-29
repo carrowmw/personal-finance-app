@@ -1,0 +1,45 @@
+flowchart LR
+    Root["/"] --> MainBP[Main Blueprint]
+    Root --> AuthBP[Auth Blueprint]
+    Root --> PlaidBP[Plaid Blueprint]
+    Root --> PostsBP[Posts Blueprint]
+    Root --> FinancialBP[Financial Blueprint]
+
+    MainBP --> MainHome["/home"]
+    MainBP --> MainAbout["/about"]
+
+    AuthBP --> AuthRegister["/register"]
+    AuthBP --> AuthLogin["/login"]
+    AuthBP --> AuthLogout["/logout"]
+    AuthBP --> AuthAccount["/account"]
+    AuthBP --> AuthReset["/reset_password"]
+
+    PlaidBP --> PlaidLink["/plaid/link"]
+    PlaidBP --> PlaidToken["/plaid/create_link_token"]
+    PlaidBP --> PlaidExchange["/plaid/exchange_public_token"]
+    PlaidBP --> PlaidSuccess["/plaid/success"]
+    PlaidBP --> PlaidSync["/plaid/sync_data"]
+
+    PostsBP --> PostsIndex["/posts"]
+    PostsBP --> PostsNew["/posts/post/new"]
+    PostsBP --> PostsView["/posts/post/:id"]
+    PostsBP --> PostsUpdate["/posts/post/:id/update"]
+    PostsBP --> PostsDelete["/posts/post/:id/delete"]
+
+    FinancialBP --> FinDashboard["/financial/dashboard"]
+    FinancialBP --> FinAccounts["/financial/accounts"]
+    FinancialBP --> FinTransactions["/financial/transactions"]
+    FinancialBP --> FinAnalytics["/financial/analytics"]
+    FinancialBP --> FinAPI["/financial/api/*"]
+
+    classDef auth fill:#f9f,stroke:#333,stroke-width:2px
+    classDef financial fill:#bbf,stroke:#333,stroke-width:2px
+    classDef posts fill:#bfb,stroke:#333,stroke-width:2px
+    classDef plaid fill:#fbb,stroke:#333,stroke-width:2px
+    classDef main fill:#ddd,stroke:#333,stroke-width:2px
+
+    class AuthRegister,AuthLogin,AuthLogout,AuthAccount,AuthReset auth
+    class FinDashboard,FinAccounts,FinTransactions,FinAnalytics,FinAPI financial
+    class PostsIndex,PostsNew,PostsView,PostsUpdate,PostsDelete posts
+    class PlaidLink,PlaidToken,PlaidExchange,PlaidSuccess,PlaidSync plaid
+    class MainHome,MainAbout main

@@ -1,0 +1,33 @@
+sequenceDiagram
+    participant Bank as Bank/Financial Institution
+    participant Plaid as Plaid API
+    participant App as Flask Application
+    participant DB as Database
+    participant Analysis as Data Analysis Services
+    participant UI as User Interface
+
+    Bank->>Plaid: Provide transaction data
+
+    Note over App, UI: Initial Sync
+    App->>Plaid: Request transactions sync
+    Plaid-->>App: Return added transactions
+    App->>DB: Store new transactions
+
+    Note over App, UI: Periodic Sync
+    App->>Plaid: Sync with cursor
+    Plaid-->>App: Return new, modified and removed transactions
+    App->>DB: Add new transactions
+    App->>DB: Update modified transactions
+    App->>DB: Remove deleted transactions
+
+    Note over App, UI: Data Retrieval
+    App->>DB: Query transaction data
+    DB-->>App: Return transaction records
+    App->>Analysis: Process transaction data
+    Analysis-->>App: Return processed data and visualizations
+
+    Note over App, UI: Frontend Display
+    App->>UI: Send transaction data
+    App->>UI: Send spending analyses
+    App->>UI: Send visualizations (charts, graphs)
+    UI-->>User: Display financial dashboard

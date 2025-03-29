@@ -1,0 +1,34 @@
+graph TD
+    subgraph Data Sources
+        PlaidAPI[Plaid API] -->|Transaction Data| TSvc[Transaction Service]
+        PlaidAPI -->|Account Data| ASvc[Account Service]
+    end
+
+    subgraph Data Processing
+        TSvc -->|Store| TModel[Transaction Model]
+        ASvc -->|Store| BModel[Balance Model]
+
+        TModel -->|Query| FinService[Financial Services]
+        BModel -->|Query| FinService
+
+        FinService -->|Process| TransDF[Transaction DataFrame]
+        FinService -->|Calculate| MonthlySpend[Monthly Spending]
+        FinService -->|Group By| Categories[Spending by Category]
+        FinService -->|Sum| TotalBalance[Total Balance]
+    end
+
+    subgraph Visualization
+        TransDF -->|Input for| Charts[Chart Generation]
+        MonthlySpend -->|Display in| Dashboard[Dashboard Cards]
+        Categories -->|Create| PieChart[Category Pie Chart]
+        TotalBalance -->|Show in| AccSummary[Account Summary]
+    end
+
+    subgraph User Interface
+        Dashboard --> UI[User Interface]
+        PieChart --> UI
+        AccSummary --> UI
+        Charts --> UI
+    end
+
+    UI -->|View| User((User))

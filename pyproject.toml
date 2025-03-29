@@ -27,7 +27,16 @@ aiohttp = "^3.11.12"
 
 [tool.poetry.scripts]
 start = "src.app:main"
+# For development purposes
+dev = "dev:socketio.run"
+livereload = "livereload_server:run_livereload_server"
 
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3.5"
+flask-socketio = "^5.5.1"
+eventlet = "^0.39.1"
+livereload = "^2.7.1"
 
 [build-system]
 requires = ["poetry-core"]

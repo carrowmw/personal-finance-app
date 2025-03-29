@@ -1,0 +1,108 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h1>Chart Debugging</h1>
+            <p>This page helps diagnose issues with chart rendering</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Chart Data</h5>
+                </div>
+                <div class="card-body">
+                    <pre class="bg-light p-3">{{ response_data|tojson(indent=2) }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Spending Chart</h5>
+                </div>
+                <div class="card-body">
+                    <div id="test-spending-chart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">Category Chart</h5>
+                </div>
+                <div class="card-body">
+                    <div id="test-category-chart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Plotly.js -->
+<script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("DOM loaded, initializing debug charts");
+
+    // Load and display the spending chart
+    try {
+        console.log("Trying to render test spending chart");
+        const spendingChartStr = {{ spending_chart| safe
+    }};
+console.log("Spending chart data type:", typeof spendingChartStr);
+console.log("Spending chart string length:", spendingChartStr ? spendingChartStr.length : 0);
+
+if (spendingChartStr) {
+    try {
+        // Parse the JSON string to get the Plotly figure
+        const chartData = JSON.parse(spendingChartStr);
+        console.log("Parsed spending chart data:", chartData);
+        Plotly.newPlot('test-spending-chart', chartData);
+        console.log("Test spending chart rendered");
+    } catch (parseError) {
+        console.error("Error parsing spending chart JSON:", parseError);
+        console.log("First 100 chars of string:", spendingChartStr.substring(0, 100));
+    }
+} else {
+    console.log("No spending chart data available");
+}
+    } catch (e) {
+    console.error('Error rendering test spending chart:', e);
+}
+
+// Load and display the category chart
+try {
+    console.log("Trying to render test category chart");
+    const categoryChartStr = {{ category_chart| safe
+}};
+console.log("Category chart data type:", typeof categoryChartStr);
+console.log("Category chart string length:", categoryChartStr ? categoryChartStr.length : 0);
+
+if (categoryChartStr) {
+    try {
+        const chartData = JSON.parse(categoryChartStr);
+        console.log("Parsed category chart data:", chartData);
+        Plotly.newPlot('test-category-chart', chartData);
+        console.log("Test category chart rendered");
+    } catch (parseError) {
+        console.error("Error parsing category chart JSON:", parseError);
+        console.log("First 100 chars of string:", categoryChartStr.substring(0, 100));
+    }
+} else {
+    console.log("No category chart data available");
+}
+    } catch (e) {
+    console.error('Error rendering test category chart:', e);
+}
+});
+</script>
+{% endblock %}

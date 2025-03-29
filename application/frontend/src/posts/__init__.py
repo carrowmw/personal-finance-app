@@ -1,1 +1,0 @@
-# application/frontend/src/posts/__init__.py
