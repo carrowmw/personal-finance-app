@@ -1,0 +1,22 @@
+.env
+.envrc
+.log
+*.pkl
+access_token.json
+cursor.json
+data/*.pkl
+__pycache__
+quickstart/
+tsoconfig.json
+update_linux_server.sh
+workflow.md
+key_generator.py
+node_modules/
+**/dist/
+*.pyc
+
+# Never commit secrets (env files)
+**/.env
+**/.env.*
+!**/.env.example
+!.env.example

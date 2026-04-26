@@ -1,0 +1,28 @@
+{
+  "name": "personal-finances-ts",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "start": "npm run dev",
+    "api:free-port": "sh -c 'pids=$(lsof -ti tcp:4000); if [ -n \"$pids\" ]; then kill -9 $pids; fi'",
+    "api:dev": "npm run api:free-port && npm run --workspace @personal-finances/api dev",
+    "build": "npm run --workspace @personal-finances/contracts build && npm run --workspace @personal-finances/api build && npm run --workspace @personal-finances/web build",
+    "dev": "npm run --workspace @personal-finances/contracts build && npm run api:dev & npm run --workspace @personal-finances/web dev",
+    "lint": "npm run --workspaces --if-present lint",
+    "test": "npm run --workspaces --if-present test",
+    "typecheck": "npm run --workspace @personal-finances/contracts build && npm run --workspaces --if-present typecheck"
+  },
+  "overrides": {
+    "multer": "2.1.0",
+    "@nestjs/platform-express": {
+      "multer": "2.1.0"
+    }
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
