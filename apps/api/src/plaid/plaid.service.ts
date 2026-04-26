@@ -179,27 +179,111 @@ export class PlaidService {
         count: 100,
       };
 
-      const response = await this.plaidClient.transactionsSync(request);
-      const data = response.data;
+      try {
+        const response = await this.plaidClient.transactionsSync(request);
+        const data = response.data;
+        const transactionsToProcess = [...data.added, ...data.modified];
 
-      for (const transaction of [...data.added, ...data.modified]) {
-        await this.upsertTransaction(userId, plaidItem.id, transaction);
+        // 1. Optimize Account Upserts (Deduplicate and run sequentially to avoid DB deadlocks)
+        const uniqueAccountIds = Array.from(
+          new Set(transactionsToProcess.map((t) => t.account_id)),
+        );
+        const accountMap = new Map<string, string>(); // Maps Plaid ID to Internal DB ID
+
+        for (const accountId of uniqueAccountIds) {
+          const account = await this.prisma.account.upsert({
+            where: { plaidAccountId: accountId },
+            create: {
+              userId,
+              plaidItemId: plaidItem.id,
+              plaidAccountId: accountId,
+              name: "Plaid Account",
+              type: "depository",
+            },
+            update: {},
+          });
+          accountMap.set(accountId, account.id);
+        }
+
+        // 2. Optimize Transaction Upserts (Run all 100 concurrently!)
+        await Promise.all(
+          transactionsToProcess.map(async (transaction) => {
+            const financeCategory = transaction.personal_finance_category;
+            const legacyCategory = transaction.category ?? [];
+            const primaryCategory =
+              financeCategory?.primary ?? legacyCategory[0] ?? null;
+            const detailedCategory =
+              financeCategory?.detailed ??
+              legacyCategory[1] ??
+              legacyCategory[0] ??
+              null;
+            const confidenceLevel = financeCategory?.confidence_level ?? null;
+            const taxonomyVersion = financeCategory
+              ? this.personalFinanceTaxonomyVersion
+              : null;
+            const date = new Date(transaction.date);
+
+            return this.prisma.transaction.upsert({
+              where: {
+                plaidTransactionId: transaction.transaction_id,
+              },
+              create: {
+                userId,
+                accountId: accountMap.get(transaction.account_id)!,
+                plaidTransactionId: transaction.transaction_id,
+                amount: new Prisma.Decimal(transaction.amount),
+                name: transaction.name,
+                merchantName: transaction.merchant_name ?? null,
+                pending: transaction.pending,
+                categoryPrimary: primaryCategory,
+                categoryDetailed: detailedCategory,
+                categoryConfidenceLevel: confidenceLevel,
+                categoryTaxonomyVersion: taxonomyVersion,
+                isoCurrencyCode: transaction.iso_currency_code ?? null,
+                date,
+              },
+              update: {
+                amount: new Prisma.Decimal(transaction.amount),
+                name: transaction.name,
+                merchantName: transaction.merchant_name ?? null,
+                pending: transaction.pending,
+                categoryPrimary: primaryCategory,
+                categoryDetailed: detailedCategory,
+                categoryConfidenceLevel: confidenceLevel,
+                categoryTaxonomyVersion: taxonomyVersion,
+                isoCurrencyCode: transaction.iso_currency_code ?? null,
+                date,
+              },
+            });
+          }),
+        );
+
+        // 3. Handle deletions
+        if (data.removed.length > 0) {
+          const removedIds = data.removed.map((entry) => entry.transaction_id);
+          await this.prisma.transaction.deleteMany({
+            where: {
+              plaidTransactionId: { in: removedIds },
+              userId,
+            },
+          });
+        }
+
+        processedCount +=
+          data.added.length + data.modified.length + data.removed.length;
+
+        cursor = data.next_cursor;
+        hasMore = data.has_more;
+      } catch (error: any) {
+        // Catch Plaid's pagination mutation error
+        if (
+          error.response?.data?.error_code ===
+          "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
+        ) {
+          break;
+        }
+        throw error;
       }
-
-      if (data.removed.length > 0) {
-        const removedIds = data.removed.map((entry) => entry.transaction_id);
-        await this.prisma.transaction.deleteMany({
-          where: {
-            plaidTransactionId: { in: removedIds },
-            userId,
-          },
-        });
-      }
-
-      processedCount +=
-        data.added.length + data.modified.length + data.removed.length;
-      cursor = data.next_cursor;
-      hasMore = data.has_more;
     }
 
     await this.prisma.syncState.upsert({

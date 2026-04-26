@@ -66,7 +66,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(
     @Req() request: { user: { sub: string } },
-  ): Promise<{ id: string; email: string }> {
+  ): Promise<{ id: string; email: string; hasLinkedAccount: boolean }> {
     return this.authService.me(request.user.sub);
   }
 }

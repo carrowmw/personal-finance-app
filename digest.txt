@@ -9,7 +9,6 @@ Directory structure:
     │   │   ├── package.json
     │   │   ├── tsconfig.build.json
     │   │   ├── tsconfig.json
-    │   │   ├── .env.example
     │   │   ├── prisma/
     │   │   │   └── schema.prisma
     │   │   └── src/
@@ -49,12 +48,21 @@ Directory structure:
     │       ├── package.json
     │       ├── tsconfig.json
     │       ├── vite.config.ts
-    │       ├── .env.example
     │       └── src/
     │           ├── App.css
     │           ├── App.tsx
     │           ├── main.tsx
-    │           └── vite-env.d.ts
+    │           ├── vite-env.d.ts
+    │           ├── components/
+    │           │   ├── ChartsPanel.tsx
+    │           │   ├── DashboardPanel.tsx
+    │           │   └── TransactionsPanel.tsx
+    │           ├── pages/
+    │           │   ├── AuthPortal.tsx
+    │           │   ├── Dashboard.tsx
+    │           │   └── OnboardingFlow.tsx
+    │           └── utils/
+    │               └── api.ts
     ├── docs/
     │   ├── typescript-migration.md
     │   └── plaid-security/
@@ -137,6 +145,13 @@ FILE: package.json
   },
   "engines": {
     "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/icons-material": "^9.0.0",
+    "@mui/material": "^9.0.0",
+    "react-router-dom": "^7.14.2"
   }
 }
 
@@ -283,53 +298,6 @@ FILE: apps/api/tsconfig.json
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }
-
-
-
-================================================
-FILE: apps/api/.env.example
-================================================
-API_PORT=4000
-DATABASE_URL=postgresql://postgres:<URL_ENCODED_PASSWORD>@aws-1-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true
-DIRECT_URL=postgresql://postgres:<URL_ENCODED_PASSWORD>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require
-JWT_SECRET=replace-with-32-plus-char-random-secret
-
-# Enforce passkey-based 2FA on the web app (recommended for production)
-# MFA_REQUIRED=true
-MFA_REQUIRED=false
-
-# WebAuthn (passkeys / security keys / biometrics)
-# For local dev, rpId should be "localhost".
-WEBAUTHN_RP_ID=localhost
-WEBAUTHN_RP_NAME=Personal Finances
-WEBAUTHN_ORIGINS=http://localhost:5173,http://localhost:5174
-PLAID_CLIENT_ID=
-PLAID_SANDBOX_SECRET=
-PLAID_DEVELOPMENT_SECRET=
-PLAID_PRODUCTION_SECRET=
-
-# Optional backward-compatible single-secret config
-# PLAID_SECRET=
-PLAID_ENV=sandbox
-PLAID_PRODUCTS=transactions
-PLAID_COUNTRY_CODES=GB
-PLAID_PFC_TAXONOMY_VERSION=v2
-
-# Required: base64-encoded 32-byte key for encrypting Plaid access tokens at rest.
-# Generate with: openssl rand -base64 32
-PLAID_ACCESS_TOKEN_ENCRYPTION_KEY=
-
-# Optional but recommended for OAuth institutions in development/production.
-# Example: https://localhost:5173/plaid/oauth-return
-PLAID_REDIRECT_URI=
-
-# One-time maintenance endpoint key used to re-encrypt legacy plaintext Plaid tokens.
-# Set this only when running the migration endpoint, then remove or rotate it.
-PLAID_TOKEN_MAINTENANCE_KEY=
-
-# Web origin(s) allowed to call this API (comma-separated). Example:
-# CORS_ORIGINS=http://localhost:5173,https://your-domain.example
-CORS_ORIGINS=http://localhost:5173,http://localhost:5174
 
 
 
@@ -735,7 +703,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   me(
     @Req() request: { user: { sub: string } },
-  ): Promise<{ id: string; email: string }> {
+  ): Promise<{ id: string; email: string; hasLinkedAccount: boolean }> {
     return this.authService.me(request.user.sub);
   }
 }
@@ -913,8 +881,16 @@ export class AuthService {
     return this.signAccessToken(user);
   }
 
-  async me(userId: string): Promise<{ id: string; email: string }> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  async me(
+    userId: string,
+  ): Promise<{ id: string; email: string; hasLinkedAccount: boolean }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        plaidItems: { select: { id: true }, take: 1 },
+      },
+    });
+
     if (!user) {
       throw new UnauthorizedException("User not found");
     }
@@ -922,6 +898,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      hasLinkedAccount: user.plaidItems.length > 0,
     };
   }
 
@@ -1946,27 +1923,42 @@ export class PlaidService {
         count: 100,
       };
 
-      const response = await this.plaidClient.transactionsSync(request);
-      const data = response.data;
+      try {
+        const response = await this.plaidClient.transactionsSync(request);
+        const data = response.data;
 
-      for (const transaction of [...data.added, ...data.modified]) {
-        await this.upsertTransaction(userId, plaidItem.id, transaction);
+        for (const transaction of [...data.added, ...data.modified]) {
+          await this.upsertTransaction(userId, plaidItem.id, transaction);
+        }
+
+        if (data.removed.length > 0) {
+          const removedIds = data.removed.map((entry) => entry.transaction_id);
+          await this.prisma.transaction.deleteMany({
+            where: {
+              plaidTransactionId: { in: removedIds },
+              userId,
+            },
+          });
+        }
+
+        processedCount +=
+          data.added.length + data.modified.length + data.removed.length;
+
+        cursor = data.next_cursor;
+        hasMore = data.has_more;
+      } catch (error: any) {
+        // Catch Plaid's pagination mutation error
+        if (
+          error.response?.data?.error_code ===
+          "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
+        ) {
+          // Data changed mid-sync. Break the loop to save the last successful cursor.
+          // The frontend's next poll will automatically resume from there.
+          break;
+        }
+        // If it's any other error, throw it
+        throw error;
       }
-
-      if (data.removed.length > 0) {
-        const removedIds = data.removed.map((entry) => entry.transaction_id);
-        await this.prisma.transaction.deleteMany({
-          where: {
-            plaidTransactionId: { in: removedIds },
-            userId,
-          },
-        });
-      }
-
-      processedCount +=
-        data.added.length + data.modified.length + data.removed.length;
-      cursor = data.next_cursor;
-      hasMore = data.has_more;
     }
 
     await this.prisma.syncState.upsert({
@@ -2319,13 +2311,6 @@ export default defineConfig({
 
 
 ================================================
-FILE: apps/web/.env.example
-================================================
-VITE_API_URL=http://localhost:4000/api
-
-
-
-================================================
 FILE: apps/web/src/App.css
 ================================================
 .app-shell {
@@ -2548,23 +2533,132 @@ button {
 ================================================
 FILE: apps/web/src/App.tsx
 ================================================
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import {
-  DashboardSummary,
-  ManualSyncResponse,
-  TransactionRecord,
-  TransactionListResponse,
-} from "@personal-finances/contracts";
-import {
-  startAuthentication,
-  startRegistration,
-} from "@simplewebauthn/browser";
-import { usePlaidLink } from "react-plaid-link";
+import { AuthPortal } from "./pages/AuthPortal";
+import { OnboardingFlow } from "./pages/OnboardingFlow";
+import { Dashboard } from "./pages/Dashboard";
+import { API_URL, requestJson } from "./utils/api";
+
+export function App() {
+  const [token, setToken] = useState<string | null>(
+    localStorage.getItem("pf_token"),
+  );
+  const [hasLinkedAccount, setHasLinkedAccount] = useState<boolean | null>(
+    null,
+  );
+
+  // When the app loads or token changes, verify token validity and linked account status
+  useEffect(() => {
+    if (!token) {
+      setHasLinkedAccount(null);
+      return;
+    }
+
+    const checkLinkedStatus = async () => {
+      try {
+        const user = await requestJson<{ hasLinkedAccount: boolean }>(
+          `${API_URL}/auth/me`,
+          { headers: { Authorization: `Bearer ${token}` } },
+          "checking user status",
+        );
+        setHasLinkedAccount(user.hasLinkedAccount);
+      } catch {
+        // If the /me request fails, the token is likely invalid/expired.
+        localStorage.removeItem("pf_token");
+        setToken(null);
+        setHasLinkedAccount(false);
+      }
+    };
+
+    void checkLinkedStatus();
+  }, [token]);
+
+  // Prevent routing flicker while checking status
+  if (token && hasLinkedAccount === null) {
+    return null;
+  }
+
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            token ? (
+              <Navigate
+                to={hasLinkedAccount ? "/dashboard" : "/onboarding"}
+                replace
+              />
+            ) : (
+              <AuthPortal setToken={setToken} />
+            )
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            !token ? (
+              <Navigate to="/" replace />
+            ) : hasLinkedAccount ? (
+              <Navigate to="/dashboard" replace />
+            ) : (
+              <OnboardingFlow
+                token={token}
+                setHasLinkedAccount={setHasLinkedAccount}
+              />
+            )
+          }
+        />
+        <Route
+          path="/dashboard"
+          element={
+            !token ? (
+              <Navigate to="/" replace />
+            ) : !hasLinkedAccount ? (
+              <Navigate to="/onboarding" replace />
+            ) : (
+              <Dashboard
+                token={token}
+                setToken={setToken}
+                setHasLinkedAccount={setHasLinkedAccount}
+              />
+            )
+          }
+        />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+
+
+================================================
+FILE: apps/web/src/main.tsx
+================================================
+import { createRoot } from "react-dom/client";
+import { App } from "./App";
 import "./App.css";
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+createRoot(document.getElementById("root")!).render(<App />);
 
-type AuthMode = "register" | "login";
+
+
+================================================
+FILE: apps/web/src/vite-env.d.ts
+================================================
+/// <reference types="vite/client" />
+
+
+
+================================================
+FILE: apps/web/src/components/ChartsPanel.tsx
+================================================
+import { useState } from "react";
+import {
+  DashboardSummary,
+  TransactionRecord,
+} from "@personal-finances/contracts";
 
 type TrendPoint = {
   date: string;
@@ -2581,237 +2675,6 @@ type CategoryBreakdownEntry = {
   count: number;
   topDetailedCategory: string;
 };
-
-type ApiErrorPayload = {
-  message?: string | string[];
-  error?: string;
-  statusCode?: number;
-};
-
-type AuthApiResponse = {
-  token?: string;
-  mfaRequired: boolean;
-  mfaStage?: "setup" | "authenticate";
-  mfaToken?: string;
-  user: { id: string; email: string };
-};
-
-function normalizeApiMessage(payload: ApiErrorPayload | null): string | null {
-  if (!payload?.message) {
-    return null;
-  }
-
-  if (Array.isArray(payload.message)) {
-    return payload.message.join("; ");
-  }
-
-  return payload.message;
-}
-
-function buildApiErrorMessage(
-  context: string,
-  status: number,
-  payload: ApiErrorPayload | null,
-): string {
-  const apiMessage = normalizeApiMessage(payload);
-
-  if (status === 401) {
-    return (
-      apiMessage ??
-      "Session expired or invalid credentials. Please login again."
-    );
-  }
-
-  if (status === 400) {
-    return apiMessage ?? `Invalid request while ${context}.`;
-  }
-
-  if (status === 503) {
-    return (
-      apiMessage ??
-      "Service is temporarily unavailable. Check API/Plaid configuration."
-    );
-  }
-
-  if (status >= 500) {
-    return apiMessage ?? `Server error while ${context}.`;
-  }
-
-  return apiMessage ?? `${context} failed (HTTP ${status}).`;
-}
-
-async function requestJson<T>(
-  url: string,
-  init: RequestInit,
-  context: string,
-): Promise<T> {
-  const response = await fetch(url, init);
-
-  let payload: ApiErrorPayload | null = null;
-  try {
-    payload = (await response.json()) as ApiErrorPayload;
-  } catch {
-    payload = null;
-  }
-
-  if (!response.ok) {
-    throw new Error(buildApiErrorMessage(context, response.status, payload));
-  }
-
-  return payload as T;
-}
-
-function AuthSection(props: {
-  email: string;
-  password: string;
-  disabled: boolean;
-  authLoadingMode: AuthMode | null;
-  onEmailChange: (value: string) => void;
-  onPasswordChange: (value: string) => void;
-  onRegister: () => void;
-  onLogin: () => void;
-  onLogout: () => void;
-}) {
-  return (
-    <section className="panel">
-      <h2 className="panel-title">Authentication</h2>
-      <div className="form-grid">
-        <input
-          value={props.email}
-          onChange={(event) => props.onEmailChange(event.target.value)}
-          placeholder="Email"
-          disabled={props.disabled}
-        />
-        <input
-          type="password"
-          value={props.password}
-          onChange={(event) => props.onPasswordChange(event.target.value)}
-          placeholder="Password"
-          disabled={props.disabled}
-        />
-        <div className="button-row">
-          <button
-            onClick={props.onRegister}
-            disabled={props.disabled || props.authLoadingMode !== null}
-          >
-            {props.authLoadingMode === "register"
-              ? "Registering..."
-              : "Register"}
-          </button>
-          <button
-            onClick={props.onLogin}
-            disabled={props.disabled || props.authLoadingMode !== null}
-          >
-            {props.authLoadingMode === "login" ? "Logging in..." : "Login"}
-          </button>
-          <button onClick={props.onLogout} disabled={props.disabled}>
-            Logout
-          </button>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function PlaidActions(props: {
-  disabled: boolean;
-  linkTokenReady: boolean;
-  plaidReady: boolean;
-  creatingLinkToken: boolean;
-  exchangingToken: boolean;
-  syncing: boolean;
-  onCreateLinkToken: () => void;
-  onOpenPlaid: () => void;
-  onRunManualSync: () => void;
-}) {
-  return (
-    <section className="panel">
-      <h2 className="panel-title">Bank Link & Sync</h2>
-      <div className="button-row wrap">
-        <button
-          onClick={props.onCreateLinkToken}
-          disabled={props.disabled || props.creatingLinkToken}
-        >
-          {props.creatingLinkToken ? "Creating..." : "Create Link Token"}
-        </button>
-        <button
-          onClick={props.onOpenPlaid}
-          disabled={
-            props.disabled ||
-            props.exchangingToken ||
-            !props.linkTokenReady ||
-            !props.plaidReady
-          }
-        >
-          {props.exchangingToken ? "Linking..." : "Open Plaid Link"}
-        </button>
-        <button
-          onClick={props.onRunManualSync}
-          disabled={props.disabled || props.syncing}
-        >
-          {props.syncing ? "Syncing..." : "Run Manual Sync"}
-        </button>
-      </div>
-    </section>
-  );
-}
-
-function DashboardPanel(props: {
-  summary: DashboardSummary | null;
-  loading: boolean;
-}) {
-  return (
-    <section className="panel">
-      <h2 className="panel-title">Dashboard</h2>
-      {props.summary ? (
-        <ul className="metric-list">
-          <li>
-            Net cashflow (month): {props.summary.netCashflowMonth.toFixed(2)}
-          </li>
-          <li>Income (month): {props.summary.incomeMonth.toFixed(2)}</li>
-          <li>Spending (month): {props.summary.spendingMonth.toFixed(2)}</li>
-        </ul>
-      ) : (
-        <p>{props.loading ? "Loading summary..." : "No dashboard data yet."}</p>
-      )}
-    </section>
-  );
-}
-
-function TransactionsPanel(props: {
-  transactions: TransactionRecord[];
-  loading: boolean;
-}) {
-  return (
-    <section className="panel">
-      <h2 className="panel-title">Recent Transactions</h2>
-      {props.loading ? (
-        <p>Loading transactions...</p>
-      ) : props.transactions.length === 0 ? (
-        <p>No transactions yet.</p>
-      ) : (
-        <table className="transactions-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Merchant</th>
-              <th className="align-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {props.transactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td>{transaction.date}</td>
-                <td>{transaction.merchant}</td>
-                <td className="align-right">{transaction.amount.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </section>
-  );
-}
 
 function getRangeDays(range: DateRangeKey): number {
   if (range === "7d") {
@@ -2929,7 +2792,7 @@ function buildCategoryBreakdown(
     .slice(0, 8);
 }
 
-function ChartsPanel(props: {
+export function ChartsPanel(props: {
   summary: DashboardSummary | null;
   transactions: TransactionRecord[];
   loading: boolean;
@@ -3135,24 +2998,112 @@ function ChartsPanel(props: {
   );
 }
 
-export function App() {
-  const [email, setEmail] = useState("demo@example.com");
-  const [password, setPassword] = useState("password123");
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("pf_token"),
+
+
+================================================
+FILE: apps/web/src/components/DashboardPanel.tsx
+================================================
+import { DashboardSummary } from "@personal-finances/contracts";
+
+export function DashboardPanel(props: {
+  summary: DashboardSummary | null;
+  loading: boolean;
+}) {
+  return (
+    <section className="panel">
+      <h2 className="panel-title">Dashboard</h2>
+      {props.summary ? (
+        <ul className="metric-list">
+          <li>
+            Net cashflow (month): {props.summary.netCashflowMonth.toFixed(2)}
+          </li>
+          <li>Income (month): {props.summary.incomeMonth.toFixed(2)}</li>
+          <li>Spending (month): {props.summary.spendingMonth.toFixed(2)}</li>
+        </ul>
+      ) : (
+        <p>{props.loading ? "Loading summary..." : "No dashboard data yet."}</p>
+      )}
+    </section>
   );
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [transactions, setTransactions] = useState<
-    TransactionListResponse["transactions"]
-  >([]);
-  const [error, setError] = useState<string | null>(null);
+}
+
+
+
+================================================
+FILE: apps/web/src/components/TransactionsPanel.tsx
+================================================
+import { TransactionRecord } from "@personal-finances/contracts";
+
+export function TransactionsPanel(props: {
+  transactions: TransactionRecord[];
+  loading: boolean;
+}) {
+  return (
+    <section className="panel">
+      <h2 className="panel-title">Recent Transactions</h2>
+      {props.loading ? (
+        <p>Loading transactions...</p>
+      ) : props.transactions.length === 0 ? (
+        <p>No transactions yet.</p>
+      ) : (
+        <table className="transactions-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Merchant</th>
+              <th className="align-right">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {props.transactions.map((transaction) => (
+              <tr key={transaction.id}>
+                <td>{transaction.date}</td>
+                <td>{transaction.merchant}</td>
+                <td className="align-right">{transaction.amount.toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+
+
+================================================
+FILE: apps/web/src/pages/AuthPortal.tsx
+================================================
+import {
+  Box,
+  Paper,
+  Tabs,
+  Tab,
+  TextField,
+  Button,
+  Typography,
+  Container,
+  Alert,
+} from "@mui/material";
+import { useState } from "react";
+import {
+  startAuthentication,
+  startRegistration,
+} from "@simplewebauthn/browser";
+
+// Import from the utils file
+import { API_URL, requestJson, AuthApiResponse } from "../utils/api";
+
+type AuthMode = "register" | "login";
+
+export function AuthPortal({ setToken }: { setToken: (t: string) => void }) {
+  const [tab, setTab] = useState(0);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
   const [status, setStatus] = useState<string | null>(null);
-  const [linkToken, setLinkToken] = useState<string | null>(null);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [authLoadingMode, setAuthLoadingMode] = useState<AuthMode | null>(null);
-  const [isCreatingLinkToken, setIsCreatingLinkToken] = useState(false);
-  const [isExchangingToken, setIsExchangingToken] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [loadingMode, setLoadingMode] = useState<AuthMode | null>(null);
 
   const withAuthHeader = (currentToken: string): HeadersInit => ({
     "Content-Type": "application/json",
@@ -3169,9 +3120,7 @@ export function App() {
         `${API_URL}/auth/webauthn/register/options`,
         {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${mfaToken}`,
-          },
+          headers: { Authorization: `Bearer ${mfaToken}` },
         },
         "creating passkey registration options",
       );
@@ -3190,7 +3139,6 @@ export function App() {
 
       localStorage.setItem("pf_token", verify.token);
       setToken(verify.token);
-      setStatus("Passkey enabled and login completed");
       return;
     }
 
@@ -3199,9 +3147,7 @@ export function App() {
       `${API_URL}/auth/webauthn/authenticate/options`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${mfaToken}`,
-        },
+        headers: { Authorization: `Bearer ${mfaToken}` },
       },
       "creating passkey authentication options",
     );
@@ -3220,99 +3166,10 @@ export function App() {
 
     localStorage.setItem("pf_token", verify.token);
     setToken(verify.token);
-    setStatus("Login completed with passkey");
   };
-
-  const fetchDashboard = async (currentToken: string) => {
-    const result = await requestJson<DashboardSummary>(
-      `${API_URL}/finance/dashboard`,
-      {
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-        },
-      },
-      "loading dashboard",
-    );
-    setSummary(result);
-  };
-
-  const fetchTransactions = async (currentToken: string) => {
-    const result = await requestJson<TransactionListResponse>(
-      `${API_URL}/finance/transactions`,
-      {
-        headers: {
-          Authorization: `Bearer ${currentToken}`,
-        },
-      },
-      "loading transactions",
-    );
-    setTransactions(result.transactions);
-  };
-
-  const refreshData = async (currentToken: string) => {
-    setIsRefreshing(true);
-    try {
-      await Promise.all([
-        fetchDashboard(currentToken),
-        fetchTransactions(currentToken),
-      ]);
-    } finally {
-      setIsRefreshing(false);
-    }
-  };
-
-  useEffect(() => {
-    if (!token) {
-      setSummary(null);
-      setTransactions([]);
-      setIsRefreshing(false);
-      return;
-    }
-
-    const run = async () => {
-      try {
-        await refreshData(token);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      }
-    };
-
-    void run();
-  }, [token]);
-
-  const { open: openPlaid, ready: plaidReady } = usePlaidLink({
-    token: linkToken,
-    onSuccess: async (publicToken) => {
-      if (!token) {
-        return;
-      }
-
-      try {
-        setIsExchangingToken(true);
-        setStatus("Exchanging Plaid public token...");
-        await requestJson<{ userId: string; linked: boolean }>(
-          `${API_URL}/plaid/exchange-token`,
-          {
-            method: "POST",
-            headers: withAuthHeader(token),
-            body: JSON.stringify({ publicToken }),
-          },
-          "linking account",
-        );
-
-        setError(null);
-        setStatus("Plaid account linked successfully");
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Unknown error");
-      } finally {
-        setIsExchangingToken(false);
-      }
-    },
-  });
 
   const auth = async (mode: AuthMode) => {
-    setAuthLoadingMode(mode);
+    setLoadingMode(mode);
     setStatus("Working...");
     setError(null);
 
@@ -3321,9 +3178,7 @@ export function App() {
         `${API_URL}/auth/${mode}`,
         {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ email, password }),
         },
         mode === "login" ? "logging in" : "registering account",
@@ -3332,7 +3187,6 @@ export function App() {
       if (payload.token) {
         localStorage.setItem("pf_token", payload.token);
         setToken(payload.token);
-        setStatus(`${mode} successful`);
         return;
       }
 
@@ -3349,142 +3203,650 @@ export function App() {
       setStatus(null);
       setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
-      setAuthLoadingMode(null);
+      setLoadingMode(null);
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem("pf_token");
-    setToken(null);
-    setStatus("Logged out");
-    setLinkToken(null);
-    setTransactions([]);
-  };
-
-  const createLinkToken = async () => {
-    if (!token) {
-      setError("Please login first");
-      return;
-    }
-
-    try {
-      setIsCreatingLinkToken(true);
-      setStatus("Creating Plaid link token...");
-      const payload = await requestJson<{ linkToken: string }>(
-        `${API_URL}/plaid/create-link-token`,
-        {
-          method: "POST",
-          headers: withAuthHeader(token),
-        },
-        "creating Plaid link token",
-      );
-
-      setLinkToken(payload.linkToken);
-      setError(null);
-      setStatus("Plaid link token ready. Click 'Open Plaid Link'.");
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setIsCreatingLinkToken(false);
-    }
-  };
-
-  const runManualSync = async () => {
-    if (!token) {
-      setError("Please login first");
-      return;
-    }
-
-    try {
-      setIsSyncing(true);
-      setStatus("Running manual sync...");
-      const payload = await requestJson<ManualSyncResponse>(
-        `${API_URL}/sync/manual`,
-        {
-          method: "POST",
-          headers: withAuthHeader(token),
-        },
-        "running manual sync",
-      );
-
-      setError(null);
-      setStatus(
-        `Manual sync complete. Processed ${payload.syncedTransactions} changes.`,
-      );
-      await refreshData(token);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setIsSyncing(false);
-    }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const mode = tab === 0 ? "login" : "register";
+    await auth(mode);
   };
 
   return (
-    <main className="app-shell">
-      <h1>Personal Finances (TS Rewrite)</h1>
-      <p className="subtext">Finance-only MVP scaffold with NestJS + React.</p>
+    <Container maxWidth="sm" sx={{ mt: 10 }}>
+      <Paper elevation={3} sx={{ borderRadius: 3, overflow: "hidden" }}>
+        <Tabs
+          value={tab}
+          onChange={(_, newValue) => {
+            setTab(newValue);
+            setError(null);
+            setStatus(null);
+          }}
+          variant="fullWidth"
+        >
+          <Tab label="Login" />
+          <Tab label="Register" />
+        </Tabs>
 
-      <AuthSection
-        email={email}
-        password={password}
-        disabled={false}
-        authLoadingMode={authLoadingMode}
-        onEmailChange={setEmail}
-        onPasswordChange={setPassword}
-        onRegister={() => void auth("register")}
-        onLogin={() => void auth("login")}
-        onLogout={logout}
-      />
+        <Box component="form" onSubmit={handleSubmit} sx={{ p: 4 }}>
+          <Typography variant="h5" align="center" gutterBottom>
+            {tab === 0 ? "Welcome Back" : "Create an Account"}
+          </Typography>
 
-      {token && (
-        <PlaidActions
-          disabled={false}
-          linkTokenReady={Boolean(linkToken)}
-          plaidReady={plaidReady}
-          creatingLinkToken={isCreatingLinkToken}
-          exchangingToken={isExchangingToken}
-          syncing={isSyncing}
-          onCreateLinkToken={() => void createLinkToken()}
-          onOpenPlaid={() => openPlaid()}
-          onRunManualSync={() => void runManualSync()}
-        />
-      )}
+          {/* Feedback Alerts */}
+          {error && (
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error}
+            </Alert>
+          )}
+          {status && !error && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              {status}
+            </Alert>
+          )}
 
-      {status && <p className="status success">{status}</p>}
-      {error && <p className="status error">Error: {error}</p>}
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Email"
+            variant="outlined"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={loadingMode !== null}
+            required
+          />
+          <TextField
+            fullWidth
+            margin="normal"
+            label="Password"
+            type="password"
+            variant="outlined"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            disabled={loadingMode !== null}
+            required
+            autoComplete="current-password"
+          />
 
-      <DashboardPanel summary={summary} loading={isRefreshing} />
-
-      <ChartsPanel
-        summary={summary}
-        transactions={transactions}
-        loading={isRefreshing}
-      />
-
-      {token && (
-        <TransactionsPanel transactions={transactions} loading={isRefreshing} />
-      )}
-    </main>
+          <Button
+            fullWidth
+            variant="contained"
+            size="large"
+            type="submit"
+            disabled={loadingMode !== null}
+            sx={{ mt: 3, py: 1.5 }}
+          >
+            {loadingMode !== null
+              ? tab === 0
+                ? "Logging in..."
+                : "Registering..."
+              : tab === 0
+                ? "Login"
+                : "Register"}
+          </Button>
+        </Box>
+      </Paper>
+    </Container>
   );
 }
 
 
 
 ================================================
-FILE: apps/web/src/main.tsx
+FILE: apps/web/src/pages/Dashboard.tsx
 ================================================
-import { createRoot } from "react-dom/client";
+import { useState, useEffect } from "react";
+import {
+  AppBar,
+  Toolbar,
+  Typography,
+  IconButton,
+  Avatar,
+  Menu,
+  MenuItem,
+  Box,
+  Container,
+  Grid,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import { usePlaidLink } from "react-plaid-link";
 
-import { App } from "./App";
+// Import API helpers and types
+import { API_URL, requestJson } from "../utils/api";
+import {
+  DashboardSummary,
+  TransactionListResponse,
+  ManualSyncResponse,
+} from "@personal-finances/contracts";
 
-createRoot(document.getElementById("root")!).render(<App />);
+// We will import your UI panels from the components folder next!
+import { DashboardPanel } from "../components/DashboardPanel";
+import { ChartsPanel } from "../components/ChartsPanel";
+import { TransactionsPanel } from "../components/TransactionsPanel";
+
+interface DashboardProps {
+  token: string;
+  setToken: (token: string | null) => void;
+  setHasLinkedAccount: (val: boolean) => void;
+}
+
+export function Dashboard({
+  token,
+  setToken,
+  setHasLinkedAccount,
+}: DashboardProps) {
+  // UI State
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
+
+  // Data State
+  const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [transactions, setTransactions] = useState<
+    TransactionListResponse["transactions"]
+  >([]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  // Plaid State (for linking additional accounts)
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+
+  // --- Data Fetching ---
+  const fetchDashboard = async () => {
+    const result = await requestJson<DashboardSummary>(
+      `${API_URL}/finance/dashboard`,
+      { headers: { Authorization: `Bearer ${token}` } },
+      "loading dashboard",
+    );
+    setSummary(result);
+  };
+
+  const fetchTransactions = async () => {
+    const result = await requestJson<TransactionListResponse>(
+      `${API_URL}/finance/transactions`,
+      { headers: { Authorization: `Bearer ${token}` } },
+      "loading transactions",
+    );
+    setTransactions(result.transactions);
+  };
+
+  const refreshData = async () => {
+    setIsRefreshing(true);
+    setError(null);
+    try {
+      await Promise.all([fetchDashboard(), fetchTransactions()]);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load data.");
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    void refreshData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  // --- Menu Handlers ---
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) =>
+    setAnchorEl(event.currentTarget);
+  const handleMenuClose = () => setAnchorEl(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("pf_token");
+    setToken(null);
+    setHasLinkedAccount(false);
+  };
+
+  const handleManualSync = async () => {
+    handleMenuClose();
+    setStatus("Running manual sync...");
+    try {
+      const payload = await requestJson<ManualSyncResponse>(
+        `${API_URL}/sync/manual`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+        "running manual sync",
+      );
+      setStatus(
+        `Sync complete. Processed ${payload.syncedTransactions} changes.`,
+      );
+      await refreshData();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Sync failed.");
+    }
+  };
+
+  // --- Plaid Link (Additional Accounts) ---
+  const { open: openPlaid } = usePlaidLink({
+    token: linkToken,
+    onSuccess: async (publicToken) => {
+      setStatus("Linking new account...");
+      try {
+        await requestJson(
+          `${API_URL}/plaid/exchange-token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ publicToken }),
+          },
+          "linking account",
+        );
+
+        // Poll for the new account's transactions
+        setStatus(
+          "Syncing new transactions... this usually takes 5-10 seconds.",
+        );
+
+        let syncedCount = 0;
+        let attempts = 0;
+        const maxAttempts = 4;
+
+        // Give Plaid's extraction engine a 2-second head start
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        while (syncedCount === 0 && attempts < maxAttempts) {
+          const syncPayload = await requestJson<{ syncedTransactions: number }>(
+            `${API_URL}/sync/manual`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+            },
+            "running manual sync",
+          );
+
+          syncedCount = syncPayload.syncedTransactions;
+
+          if (syncedCount > 0) {
+            break; // Data arrived, exit immediately!
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
+        }
+
+        setStatus(`New account linked! Synced ${syncedCount} transactions.`);
+        await refreshData();
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to link account.",
+        );
+      }
+    },
+  });
+
+  const handleLinkAnotherAccount = async () => {
+    handleMenuClose();
+    try {
+      const payload = await requestJson<{ linkToken: string }>(
+        `${API_URL}/plaid/create-link-token`,
+        { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+        "creating Plaid link token",
+      );
+      setLinkToken(payload.linkToken);
+      // Wait for React to update the linkToken state, then open Plaid
+      setTimeout(() => openPlaid(), 100);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to initialize Plaid.",
+      );
+    }
+  };
+
+  return (
+    <Box sx={{ flexGrow: 1, bgcolor: "#f9fafb", minHeight: "100vh" }}>
+      {/* Top Navigation Bar */}
+      <AppBar
+        position="static"
+        color="transparent"
+        elevation={0}
+        sx={{ borderBottom: "1px solid #e5e7eb", bgcolor: "white" }}
+      >
+        <Toolbar>
+          <Typography
+            variant="h6"
+            component="div"
+            sx={{ flexGrow: 1, fontWeight: "bold" }}
+          >
+            Personal Finances
+          </Typography>
+
+          <IconButton onClick={handleMenuOpen} color="inherit">
+            <Avatar sx={{ bgcolor: "primary.main", width: 32, height: 32 }}>
+              <PersonIcon />
+            </Avatar>
+          </IconButton>
+
+          <Menu
+            anchorEl={anchorEl}
+            open={Boolean(anchorEl)}
+            onClose={handleMenuClose}
+            transformOrigin={{ horizontal: "right", vertical: "top" }}
+            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
+          >
+            <MenuItem onClick={handleManualSync}>Force Sync Data</MenuItem>
+            <MenuItem onClick={handleLinkAnotherAccount}>
+              Link Another Account
+            </MenuItem>
+            <MenuItem onClick={handleLogout} sx={{ color: "error.main" }}>
+              Logout
+            </MenuItem>
+          </Menu>
+        </Toolbar>
+      </AppBar>
+
+      {/* Main Dashboard Content */}
+      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            {error}
+          </Alert>
+        )}
+        {status && (
+          <Alert severity="info" sx={{ mb: 3 }} onClose={() => setStatus(null)}>
+            {status}
+          </Alert>
+        )}
+
+        {isRefreshing && !summary ? (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
+            <CircularProgress />
+          </Box>
+        ) : (
+          <Grid container spacing={3}>
+            {/* Note: These components will be extracted in the next step */}
+            <Grid xs={12} md={4}>
+              <DashboardPanel summary={summary} loading={isRefreshing} />
+            </Grid>
+            <Grid xs={12} md={8}>
+              <ChartsPanel
+                summary={summary}
+                transactions={transactions}
+                loading={isRefreshing}
+              />
+            </Grid>
+            <Grid xs={12}>
+              <TransactionsPanel
+                transactions={transactions}
+                loading={isRefreshing}
+              />
+            </Grid>
+          </Grid>
+        )}
+      </Container>
+    </Box>
+  );
+}
 
 
 
 ================================================
-FILE: apps/web/src/vite-env.d.ts
+FILE: apps/web/src/pages/OnboardingFlow.tsx
 ================================================
-/// <reference types="vite/client" />
+import { useState, useEffect } from "react";
+import {
+  Container,
+  Typography,
+  Button,
+  Box,
+  Alert,
+  CircularProgress,
+} from "@mui/material";
+import { usePlaidLink } from "react-plaid-link";
+
+// Import API helpers
+import { API_URL, requestJson } from "../utils/api";
+
+interface OnboardingFlowProps {
+  token: string;
+  setHasLinkedAccount: (val: boolean) => void;
+}
+
+export function OnboardingFlow({
+  token,
+  setHasLinkedAccount,
+}: OnboardingFlowProps) {
+  const [linkToken, setLinkToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null); // <-- Added status state
+  const [isInitializing, setIsInitializing] = useState(true);
+  const [isExchanging, setIsExchanging] = useState(false);
+
+  // 1. Fetch the Link Token
+  useEffect(() => {
+    const fetchLinkToken = async () => {
+      try {
+        const payload = await requestJson<{ linkToken: string }>(
+          `${API_URL}/plaid/create-link-token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          },
+          "creating Plaid link token",
+        );
+        setLinkToken(payload.linkToken);
+        setError(null);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to initialize Plaid.",
+        );
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    void fetchLinkToken();
+  }, [token]);
+
+  // 2. Configure Plaid Link
+  const { open, ready } = usePlaidLink({
+    token: linkToken,
+    onSuccess: async (publicToken) => {
+      setIsExchanging(true);
+      setError(null);
+      try {
+        setStatusMessage("Linking account securely...");
+
+        // Step A: Exchange Token
+        await requestJson<{ userId: string; linked: boolean }>(
+          `${API_URL}/plaid/exchange-token`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ publicToken }),
+          },
+          "linking account",
+        );
+
+        // Step B: Poll for initial transactions
+        setStatusMessage(
+          "Syncing your financial data... this usually takes 5-10 seconds.",
+        );
+
+        let syncedCount = 0;
+        let attempts = 0;
+        const maxAttempts = 4;
+
+        // Give Plaid's extraction engine a 2-second head start before our first request
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+
+        while (syncedCount === 0 && attempts < maxAttempts) {
+          const syncPayload = await requestJson<{ syncedTransactions: number }>(
+            `${API_URL}/sync/manual`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+            },
+            "syncing initial transactions",
+          );
+
+          syncedCount = syncPayload.syncedTransactions;
+
+          if (syncedCount > 0) {
+            break; // We got the data, exit immediately!
+          }
+
+          attempts++;
+          if (attempts < maxAttempts) {
+            // Wait 2 seconds before the next poll
+            await new Promise((resolve) => setTimeout(resolve, 2000));
+          }
+        }
+
+        // Step C: Trigger redirect
+        setHasLinkedAccount(true);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to link account.",
+        );
+        setIsExchanging(false);
+        setStatusMessage(null);
+      }
+    },
+  });
+
+  return (
+    <Container maxWidth="sm" sx={{ mt: 15, textAlign: "center" }}>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Let's get started.
+      </Typography>
+      <Typography variant="body1" color="text.secondary" sx={{ mb: 2 }}>
+        To generate your financial dashboard, you need to securely link your
+        primary bank account.
+      </Typography>
+
+      {error && (
+        <Alert severity="error" sx={{ mb: 3, textAlign: "left" }}>
+          {error}
+        </Alert>
+      )}
+
+      {statusMessage && !error && (
+        <Alert severity="info" sx={{ mb: 3, textAlign: "left" }}>
+          {statusMessage}
+        </Alert>
+      )}
+
+      <Box sx={{ mt: 4 }}>
+        {isInitializing ? (
+          <CircularProgress size={24} />
+        ) : (
+          <Button
+            variant="contained"
+            size="large"
+            onClick={() => open()}
+            disabled={!ready || isExchanging}
+            sx={{ px: 4, py: 1.5, borderRadius: 2 }}
+          >
+            {isExchanging ? "Connecting..." : "Connect Bank Account"}
+          </Button>
+        )}
+      </Box>
+    </Container>
+  );
+}
+
+
+
+================================================
+FILE: apps/web/src/utils/api.ts
+================================================
+// import { ApiErrorPayload } from
+type ApiErrorPayload = {
+  message?: string | string[];
+  error?: string;
+  statusCode?: number;
+};
+
+export type AuthApiResponse = {
+  token?: string;
+  mfaRequired: boolean;
+  mfaStage?: "setup" | "authenticate";
+  mfaToken?: string;
+  user: { id: string; email: string };
+};
+
+export const API_URL =
+  import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";
+
+export async function requestJson<T>(
+  url: string,
+  init: RequestInit,
+  context: string,
+): Promise<T> {
+  const response = await fetch(url, init);
+
+  let payload: ApiErrorPayload | null = null;
+  try {
+    payload = (await response.json()) as ApiErrorPayload;
+  } catch {
+    payload = null;
+  }
+
+  if (!response.ok) {
+    throw new Error(buildApiErrorMessage(context, response.status, payload));
+  }
+
+  return payload as T;
+}
+
+function normalizeApiMessage(payload: ApiErrorPayload | null): string | null {
+  if (!payload?.message) {
+    return null;
+  }
+
+  if (Array.isArray(payload.message)) {
+    return payload.message.join("; ");
+  }
+
+  return payload.message;
+}
+
+function buildApiErrorMessage(
+  context: string,
+  status: number,
+  payload: ApiErrorPayload | null,
+): string {
+  const apiMessage = normalizeApiMessage(payload);
+
+  if (status === 401) {
+    return (
+      apiMessage ??
+      "Session expired or invalid credentials. Please login again."
+    );
+  }
+
+  if (status === 400) {
+    return apiMessage ?? `Invalid request while ${context}.`;
+  }
+
+  if (status === 503) {
+    return (
+      apiMessage ??
+      "Service is temporarily unavailable. Check API/Plaid configuration."
+    );
+  }
+
+  if (status >= 500) {
+    return apiMessage ?? `Server error while ${context}.`;
+  }
+
+  return apiMessage ?? `${context} failed (HTTP ${status}).`;
+}
 
 
 

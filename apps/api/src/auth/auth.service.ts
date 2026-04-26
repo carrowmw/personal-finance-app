@@ -119,8 +119,16 @@ export class AuthService {
     return this.signAccessToken(user);
   }
 
-  async me(userId: string): Promise<{ id: string; email: string }> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+  async me(
+    userId: string,
+  ): Promise<{ id: string; email: string; hasLinkedAccount: boolean }> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: {
+        plaidItems: { select: { id: true }, take: 1 },
+      },
+    });
+
     if (!user) {
       throw new UnauthorizedException("User not found");
     }
@@ -128,6 +136,7 @@ export class AuthService {
     return {
       id: user.id,
       email: user.email,
+      hasLinkedAccount: user.plaidItems.length > 0,
     };
   }
 
