@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { AuthPortal } from "./pages/AuthPortal";
 import { OnboardingFlow } from "./pages/OnboardingFlow";
 import { Dashboard } from "./pages/Dashboard";
-import { API_URL, requestJson } from "./utils/api";
+import { authApi } from "./api";
 
 export function App() {
   const [token, setToken] = useState<string | null>(
@@ -22,11 +22,7 @@ export function App() {
 
     const checkLinkedStatus = async () => {
       try {
-        const user = await requestJson<{ hasLinkedAccount: boolean }>(
-          `${API_URL}/auth/me`,
-          { headers: { Authorization: `Bearer ${token}` } },
-          "checking user status",
-        );
+        const user = await authApi.me(token);
         setHasLinkedAccount(user.hasLinkedAccount);
       } catch {
         // If the /me request fails, the token is likely invalid/expired.

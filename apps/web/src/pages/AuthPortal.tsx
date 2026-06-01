@@ -16,7 +16,8 @@ import {
 } from "@simplewebauthn/browser";
 
 // Import from the utils file
-import { API_URL, requestJson, AuthApiResponse } from "../utils/api";
+import { API_URL, requestJson } from "../utils/api";
+import { authApi } from "../api";
 
 type AuthMode = "register" | "login";
 
@@ -97,16 +98,9 @@ export function AuthPortal({ setToken }: { setToken: (t: string) => void }) {
     setStatus("Working...");
     setError(null);
 
-    try {
-      const payload = await requestJson<AuthApiResponse>(
-        `${API_URL}/auth/${mode}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password }),
-        },
-        mode === "login" ? "logging in" : "registering account",
-      );
+      const payload = await (mode === "login"
+        ? authApi.login(email, password)
+        : authApi.register(email, password));
 
       if (payload.token) {
         localStorage.setItem("pf_token", payload.token);

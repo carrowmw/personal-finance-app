@@ -11,6 +11,10 @@ import {
 } from "@nestjs/common";
 import { IsString } from "class-validator";
 import { ConfigService } from "@nestjs/config";
+import {
+  PlaidLinkTokenResponse,
+  PlaidExchangeResponse,
+} from "@personal-finances/contracts";
 
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard.js";
 import { PlaidService } from "./plaid.service.js";
@@ -32,10 +36,7 @@ export class PlaidController {
   exchangeToken(
     @Req() request: { user: { sub: string } },
     @Body() payload: ExchangePublicTokenDto,
-  ): Promise<{
-    userId: string;
-    linked: boolean;
-  }> {
+  ): Promise<PlaidExchangeResponse> {
     return this.plaidService.exchangePublicToken(
       request.user.sub,
       payload.publicToken,
@@ -45,7 +46,7 @@ export class PlaidController {
   @Post("create-link-token")
   createLinkToken(
     @Req() request: { user: { sub: string } },
-  ): Promise<{ linkToken: string }> {
+  ): Promise<PlaidLinkTokenResponse> {
     return this.plaidService.createLinkToken(request.user.sub);
   }
 

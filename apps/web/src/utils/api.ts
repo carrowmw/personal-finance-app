@@ -1,17 +1,4 @@
-// import { ApiErrorPayload } from
-type ApiErrorPayload = {
-  message?: string | string[];
-  error?: string;
-  statusCode?: number;
-};
-
-export type AuthApiResponse = {
-  token?: string;
-  mfaRequired: boolean;
-  mfaStage?: "setup" | "authenticate";
-  mfaToken?: string;
-  user: { id: string; email: string };
-};
+import { ApiErrorPayload } from "@personal-finances/contracts";
 
 export const API_URL =
   import.meta.env.VITE_API_URL ?? "http://localhost:4000/api";

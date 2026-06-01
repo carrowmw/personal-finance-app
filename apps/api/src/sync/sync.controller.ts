@@ -1,4 +1,5 @@
 import { Controller, Inject, Post, Req, UseGuards } from "@nestjs/common";
+import { ManualSyncResponse } from "@personal-finances/contracts";
 
 import { JwtAuthGuard } from "../auth/guards/jwt-auth.guard.js";
 import { SyncService } from "./sync.service.js";
@@ -11,7 +12,7 @@ export class SyncController {
   @Post("manual")
   runManualSync(
     @Req() request: { user: { sub: string } },
-  ): Promise<{ userId: string; status: string; syncedTransactions: number }> {
+  ): Promise<ManualSyncResponse> {
     return this.syncService.runManualSync(request.user.sub);
   }
 }

@@ -1,13 +1,12 @@
 import { Module } from "@nestjs/common";
 
 import { AuthModule } from "../auth/auth.module.js";
-import { FinanceModule } from "../finance/finance.module.js";
 import { PlaidModule } from "../plaid/plaid.module.js";
 import { SyncController } from "./sync.controller.js";
 import { SyncService } from "./sync.service.js";
 
 @Module({
-  imports: [AuthModule, PlaidModule, FinanceModule],
+  imports: [AuthModule, PlaidModule],
   controllers: [SyncController],
   providers: [SyncService],
 })

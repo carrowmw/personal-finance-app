@@ -1,11 +1,12 @@
 import { Inject, Injectable } from "@nestjs/common";
 
-import { PlaidService } from "../plaid/plaid.service.js";
+import { TransactionSyncService } from "../plaid/transaction-sync.service.js";
 
 @Injectable()
 export class SyncService {
   constructor(
-    @Inject(PlaidService) private readonly plaidService: PlaidService,
+    @Inject(TransactionSyncService)
+    private readonly transactionSyncService: TransactionSyncService,
   ) {}
 
   async runManualSync(userId: string): Promise<{
@@ -13,7 +14,8 @@ export class SyncService {
     status: string;
     syncedTransactions: number;
   }> {
-    const syncedTransactions = await this.plaidService.syncTransactions(userId);
+    const syncedTransactions =
+      await this.transactionSyncService.syncTransactions(userId);
 
     return {
       userId,

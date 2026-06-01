@@ -9,6 +9,7 @@ Directory structure:
     │   │   ├── package.json
     │   │   ├── tsconfig.build.json
     │   │   ├── tsconfig.json
+    │   │   ├── .env.example
     │   │   ├── prisma/
     │   │   │   └── schema.prisma
     │   │   └── src/
@@ -48,12 +49,14 @@ Directory structure:
     │       ├── package.json
     │       ├── tsconfig.json
     │       ├── vite.config.ts
+    │       ├── .env.example
     │       └── src/
     │           ├── App.css
     │           ├── App.tsx
     │           ├── main.tsx
     │           ├── vite-env.d.ts
     │           ├── components/
+    │           │   ├── CategoryPiePanel.tsx
     │           │   ├── ChartsPanel.tsx
     │           │   ├── DashboardPanel.tsx
     │           │   └── TransactionsPanel.tsx
@@ -298,6 +301,53 @@ FILE: apps/api/tsconfig.json
   "include": ["src/**/*.ts"],
   "exclude": ["dist", "node_modules"]
 }
+
+
+
+================================================
+FILE: apps/api/.env.example
+================================================
+API_PORT=4000
+DATABASE_URL=postgresql://postgres:<URL_ENCODED_PASSWORD>@aws-1-<region>.pooler.supabase.com:6543/postgres?pgbouncer=true
+DIRECT_URL=postgresql://postgres:<URL_ENCODED_PASSWORD>@db.<project-ref>.supabase.co:5432/postgres?sslmode=require
+JWT_SECRET=replace-with-32-plus-char-random-secret
+
+# Enforce passkey-based 2FA on the web app (recommended for production)
+# MFA_REQUIRED=true
+MFA_REQUIRED=false
+
+# WebAuthn (passkeys / security keys / biometrics)
+# For local dev, rpId should be "localhost".
+WEBAUTHN_RP_ID=localhost
+WEBAUTHN_RP_NAME=Personal Finances
+WEBAUTHN_ORIGINS=http://localhost:5173,http://localhost:5174
+PLAID_CLIENT_ID=
+PLAID_SANDBOX_SECRET=
+PLAID_DEVELOPMENT_SECRET=
+PLAID_PRODUCTION_SECRET=
+
+# Optional backward-compatible single-secret config
+# PLAID_SECRET=
+PLAID_ENV=sandbox
+PLAID_PRODUCTS=transactions
+PLAID_COUNTRY_CODES=GB
+PLAID_PFC_TAXONOMY_VERSION=v2
+
+# Required: base64-encoded 32-byte key for encrypting Plaid access tokens at rest.
+# Generate with: openssl rand -base64 32
+PLAID_ACCESS_TOKEN_ENCRYPTION_KEY=
+
+# Optional but recommended for OAuth institutions in development/production.
+# Example: https://localhost:5173/plaid/oauth-return
+PLAID_REDIRECT_URI=
+
+# One-time maintenance endpoint key used to re-encrypt legacy plaintext Plaid tokens.
+# Set this only when running the migration endpoint, then remove or rotate it.
+PLAID_TOKEN_MAINTENANCE_KEY=
+
+# Web origin(s) allowed to call this API (comma-separated). Example:
+# CORS_ORIGINS=http://localhost:5173,https://your-domain.example
+CORS_ORIGINS=http://localhost:5173,http://localhost:5174
 
 
 
@@ -1926,11 +1976,83 @@ export class PlaidService {
       try {
         const response = await this.plaidClient.transactionsSync(request);
         const data = response.data;
+        const transactionsToProcess = [...data.added, ...data.modified];
 
-        for (const transaction of [...data.added, ...data.modified]) {
-          await this.upsertTransaction(userId, plaidItem.id, transaction);
+        // 1. Optimize Account Upserts (Deduplicate and run sequentially to avoid DB deadlocks)
+        const uniqueAccountIds = Array.from(
+          new Set(transactionsToProcess.map((t) => t.account_id)),
+        );
+        const accountMap = new Map<string, string>(); // Maps Plaid ID to Internal DB ID
+
+        for (const accountId of uniqueAccountIds) {
+          const account = await this.prisma.account.upsert({
+            where: { plaidAccountId: accountId },
+            create: {
+              userId,
+              plaidItemId: plaidItem.id,
+              plaidAccountId: accountId,
+              name: "Plaid Account",
+              type: "depository",
+            },
+            update: {},
+          });
+          accountMap.set(accountId, account.id);
         }
 
+        // 2. Optimize Transaction Upserts (Run all 100 concurrently!)
+        await Promise.all(
+          transactionsToProcess.map(async (transaction) => {
+            const financeCategory = transaction.personal_finance_category;
+            const legacyCategory = transaction.category ?? [];
+            const primaryCategory =
+              financeCategory?.primary ?? legacyCategory[0] ?? null;
+            const detailedCategory =
+              financeCategory?.detailed ??
+              legacyCategory[1] ??
+              legacyCategory[0] ??
+              null;
+            const confidenceLevel = financeCategory?.confidence_level ?? null;
+            const taxonomyVersion = financeCategory
+              ? this.personalFinanceTaxonomyVersion
+              : null;
+            const date = new Date(transaction.date);
+
+            return this.prisma.transaction.upsert({
+              where: {
+                plaidTransactionId: transaction.transaction_id,
+              },
+              create: {
+                userId,
+                accountId: accountMap.get(transaction.account_id)!,
+                plaidTransactionId: transaction.transaction_id,
+                amount: new Prisma.Decimal(transaction.amount),
+                name: transaction.name,
+                merchantName: transaction.merchant_name ?? null,
+                pending: transaction.pending,
+                categoryPrimary: primaryCategory,
+                categoryDetailed: detailedCategory,
+                categoryConfidenceLevel: confidenceLevel,
+                categoryTaxonomyVersion: taxonomyVersion,
+                isoCurrencyCode: transaction.iso_currency_code ?? null,
+                date,
+              },
+              update: {
+                amount: new Prisma.Decimal(transaction.amount),
+                name: transaction.name,
+                merchantName: transaction.merchant_name ?? null,
+                pending: transaction.pending,
+                categoryPrimary: primaryCategory,
+                categoryDetailed: detailedCategory,
+                categoryConfidenceLevel: confidenceLevel,
+                categoryTaxonomyVersion: taxonomyVersion,
+                isoCurrencyCode: transaction.iso_currency_code ?? null,
+                date,
+              },
+            });
+          }),
+        );
+
+        // 3. Handle deletions
         if (data.removed.length > 0) {
           const removedIds = data.removed.map((entry) => entry.transaction_id);
           await this.prisma.transaction.deleteMany({
@@ -1952,11 +2074,8 @@ export class PlaidService {
           error.response?.data?.error_code ===
           "TRANSACTIONS_SYNC_MUTATION_DURING_PAGINATION"
         ) {
-          // Data changed mid-sync. Break the loop to save the last successful cursor.
-          // The frontend's next poll will automatically resume from there.
           break;
         }
-        // If it's any other error, throw it
         throw error;
       }
     }
@@ -2260,11 +2379,12 @@ FILE: apps/web/package.json
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
+    "@mui/x-charts": "^9.0.2",
     "@personal-finances/contracts": "0.1.0",
     "@simplewebauthn/browser": "^13.2.2",
-    "react-plaid-link": "^4.1.1",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-plaid-link": "^4.1.1"
   },
   "devDependencies": {
     "@types/react": "^19.0.10",
@@ -2311,223 +2431,16 @@ export default defineConfig({
 
 
 ================================================
+FILE: apps/web/.env.example
+================================================
+VITE_API_URL=http://localhost:4000/api
+
+
+
+================================================
 FILE: apps/web/src/App.css
 ================================================
-.app-shell {
-  margin: 2rem auto;
-  max-width: 760px;
-  font-family:
-    system-ui,
-    -apple-system,
-    Segoe UI,
-    Roboto,
-    sans-serif;
-}
-
-.subtext {
-  margin-top: 0.25rem;
-  color: #4b5563;
-}
-
-.panel {
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  background: #ffffff;
-}
-
-.panel-title {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
-}
-
-.form-grid {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.button-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.button-row.wrap {
-  flex-wrap: wrap;
-}
-
-button {
-  padding: 0.45rem 0.75rem;
-}
-
-.status {
-  margin: 0.75rem 0;
-}
-
-.status.success {
-  color: #065f46;
-}
-
-.status.error {
-  color: #b91c1c;
-}
-
-.metric-list {
-  margin: 0;
-  padding-left: 1rem;
-}
-
-.transactions-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.transactions-table th,
-.transactions-table td {
-  padding: 0.45rem 0.35rem;
-  border-bottom: 1px solid #e5e7eb;
-  text-align: left;
-}
-
-.transactions-table .align-right {
-  text-align: right;
-}
-
-.chart-block {
-  margin-bottom: 1rem;
-}
-
-.chart-title {
-  margin: 0 0 0.5rem;
-  font-size: 0.95rem;
-}
-
-.filter-row {
-  display: flex;
-  gap: 0.45rem;
-  margin-bottom: 0.75rem;
-}
-
-.filter-chip {
-  border: 1px solid #d1d5db;
-  background: #ffffff;
-  border-radius: 999px;
-  font-size: 0.8rem;
-}
-
-.filter-chip.active {
-  background: #eff6ff;
-  border-color: #3b82f6;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: 80px 1fr 90px;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.45rem;
-  width: 100%;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  cursor: pointer;
-  padding: 0.25rem 0.35rem;
-}
-
-.bar-row.clickable.selected {
-  border-color: #bfdbfe;
-  background: #eff6ff;
-}
-
-.bar-row:disabled {
-  cursor: default;
-}
-
-.bar-label,
-.bar-value {
-  font-size: 0.85rem;
-}
-
-.bar-value {
-  text-align: right;
-}
-
-.bar-track,
-.trend-track {
-  background: #e5e7eb;
-  border-radius: 999px;
-  overflow: hidden;
-  height: 10px;
-}
-
-.bar-fill,
-.trend-fill {
-  height: 100%;
-  border-radius: 999px;
-}
-
-.bar-fill {
-  background: #2563eb;
-}
-
-.hint-text {
-  margin: 0.3rem 0 0;
-  color: #4b5563;
-  font-size: 0.8rem;
-}
-
-.trend-row {
-  display: grid;
-  grid-template-columns: 56px 1fr;
-  gap: 0.5rem;
-  align-items: center;
-  margin-bottom: 0.45rem;
-}
-
-.trend-date {
-  font-size: 0.8rem;
-  color: #374151;
-}
-
-.trend-bars {
-  display: grid;
-  gap: 0.25rem;
-}
-
-.trend-fill.income {
-  background: #16a34a;
-}
-
-.trend-fill.spending {
-  background: #dc2626;
-}
-
-.breakdown-bars {
-  display: grid;
-  gap: 0.75rem;
-}
-
-.breakdown-row {
-  display: grid;
-  gap: 0.3rem;
-}
-
-.breakdown-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.breakdown-category,
-.breakdown-total,
-.breakdown-meta {
-  font-size: 0.85rem;
-}
-
-.breakdown-meta {
-  color: #4b5563;
-}
-
+[Empty file]
 
 
 ================================================
@@ -2652,349 +2565,209 @@ FILE: apps/web/src/vite-env.d.ts
 
 
 ================================================
-FILE: apps/web/src/components/ChartsPanel.tsx
+FILE: apps/web/src/components/CategoryPiePanel.tsx
 ================================================
-import { useState } from "react";
-import {
-  DashboardSummary,
-  TransactionRecord,
-} from "@personal-finances/contracts";
+import { TransactionRecord } from "@personal-finances/contracts";
+import { Paper, Typography, Box, CircularProgress } from "@mui/material";
+import { PieChart } from "@mui/x-charts/PieChart";
 
-type TrendPoint = {
-  date: string;
-  income: number;
-  spending: number;
-};
-
-type DateRangeKey = "7d" | "30d" | "90d";
-type FlowType = "income" | "spending";
-
-type CategoryBreakdownEntry = {
-  category: string;
-  total: number;
-  count: number;
-  topDetailedCategory: string;
-};
-
-function getRangeDays(range: DateRangeKey): number {
-  if (range === "7d") {
-    return 7;
-  }
-
-  if (range === "90d") {
-    return 90;
-  }
-
-  return 30;
-}
-
-function filterTransactionsByRange(
-  transactions: TransactionRecord[],
-  range: DateRangeKey,
-): TransactionRecord[] {
-  const days = getRangeDays(range);
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
-  start.setDate(start.getDate() - (days - 1));
-
-  return transactions.filter((transaction) => {
-    const date = new Date(`${transaction.date}T00:00:00`);
-    return date >= start;
-  });
-}
-
-function buildTrendData(
-  transactions: TransactionRecord[],
-  maxPoints: number,
-): TrendPoint[] {
-  const grouped = new Map<string, TrendPoint>();
-
-  for (const transaction of transactions) {
-    const existing = grouped.get(transaction.date) ?? {
-      date: transaction.date,
-      income: 0,
-      spending: 0,
-    };
-
-    if (transaction.amount < 0) {
-      existing.income += Math.abs(transaction.amount);
-    } else {
-      existing.spending += transaction.amount;
-    }
-
-    grouped.set(transaction.date, existing);
-  }
-
-  return Array.from(grouped.values())
-    .sort((first, second) => first.date.localeCompare(second.date))
-    .slice(-maxPoints);
-}
-
-function buildCategoryBreakdown(
-  transactions: TransactionRecord[],
-  flowType: FlowType,
-): CategoryBreakdownEntry[] {
-  const grouped = new Map<
-    string,
-    {
-      category: string;
-      total: number;
-      count: number;
-      detailedTotals: Map<string, number>;
-    }
-  >();
-
-  for (const transaction of transactions) {
-    const isIncome = transaction.amount < 0;
-    if (flowType === "income" && !isIncome) {
-      continue;
-    }
-
-    if (flowType === "spending" && isIncome) {
-      continue;
-    }
-
-    const category =
-      transaction.personalFinanceCategoryPrimary ?? "Uncategorized";
-    const detailedCategory =
-      transaction.personalFinanceCategoryDetailed ?? "Unspecified";
-    const amount = Math.abs(transaction.amount);
-    const existing = grouped.get(category) ?? {
-      category,
-      total: 0,
-      count: 0,
-      detailedTotals: new Map<string, number>(),
-    };
-
-    existing.total += amount;
-    existing.count += 1;
-    existing.detailedTotals.set(
-      detailedCategory,
-      (existing.detailedTotals.get(detailedCategory) ?? 0) + amount,
-    );
-    grouped.set(category, existing);
-  }
-
-  return Array.from(grouped.values())
-    .map((entry) => {
-      const topDetailedCategory = Array.from(
-        entry.detailedTotals.entries(),
-      ).sort((first, second) => second[1] - first[1])[0]?.[0];
-
-      return {
-        category: entry.category,
-        total: entry.total,
-        count: entry.count,
-        topDetailedCategory: topDetailedCategory ?? "Unspecified",
-      };
-    })
-    .sort((first, second) => second.total - first.total)
-    .slice(0, 8);
-}
-
-export function ChartsPanel(props: {
-  summary: DashboardSummary | null;
+export function CategoryPiePanel({
+  transactions,
+  loading,
+}: {
   transactions: TransactionRecord[];
   loading: boolean;
 }) {
-  const [dateRange, setDateRange] = useState<DateRangeKey>("30d");
-  const [selectedFlow, setSelectedFlow] = useState<FlowType | null>(null);
-
-  const filteredTransactions = filterTransactionsByRange(
-    props.transactions,
-    dateRange,
-  );
-
-  let incomeTotal = 0;
-  let spendingTotal = 0;
-  for (const transaction of filteredTransactions) {
-    if (transaction.amount < 0) {
-      incomeTotal += Math.abs(transaction.amount);
-    } else {
-      spendingTotal += transaction.amount;
-    }
-  }
-
-  const netTotal = incomeTotal - spendingTotal;
-
-  if (props.loading) {
+  if (loading) {
     return (
-      <section className="panel">
-        <h2 className="panel-title">Charts</h2>
-        <p>Loading chart data...</p>
-      </section>
+      <Paper
+        elevation={2}
+        sx={{
+          p: 3,
+          borderRadius: 2,
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <CircularProgress />
+      </Paper>
     );
   }
 
-  if (!props.summary) {
-    return (
-      <section className="panel">
-        <h2 className="panel-title">Charts</h2>
-        <p>Login and sync data to view charts.</p>
-      </section>
-    );
+  // Aggregate spending by category
+  const grouped = new Map<string, number>();
+  for (const t of transactions) {
+    if (t.amount < 0) continue; // Only count spending
+    const cat = t.personalFinanceCategoryPrimary ?? "Other";
+    grouped.set(cat, (grouped.get(cat) ?? 0) + t.amount);
   }
 
-  const summaryBars = [
-    { label: "Income", value: incomeTotal, flowType: "income" as const },
-    {
-      label: "Spending",
-      value: spendingTotal,
-      flowType: "spending" as const,
-    },
-    { label: "Net", value: Math.abs(netTotal), flowType: null },
-  ];
-  const maxSummary = Math.max(...summaryBars.map((entry) => entry.value), 1);
-
-  const trendData = buildTrendData(
-    filteredTransactions,
-    getRangeDays(dateRange),
-  );
-  const maxTrend = Math.max(
-    1,
-    ...trendData.map((entry) => Math.max(entry.income, entry.spending)),
-  );
-  const breakdown = selectedFlow
-    ? buildCategoryBreakdown(filteredTransactions, selectedFlow)
-    : [];
-  const maxBreakdown = Math.max(1, ...breakdown.map((entry) => entry.total));
-  const categoryTransactions = filteredTransactions.filter((transaction) =>
-    Boolean(transaction.personalFinanceCategoryPrimary),
-  );
-  const confidenceKnownCount = categoryTransactions.filter((transaction) =>
-    Boolean(transaction.personalFinanceCategoryConfidenceLevel),
-  ).length;
-  const taxonomyVersions = Array.from(
-    new Set(
-      categoryTransactions
-        .map(
-          (transaction) => transaction.personalFinanceCategoryTaxonomyVersion,
-        )
-        .filter((version): version is string => Boolean(version)),
-    ),
-  );
-  const taxonomyLabel =
-    taxonomyVersions.length === 1
-      ? taxonomyVersions[0]
-      : taxonomyVersions.length > 1
-        ? "mixed"
-        : "unknown";
+  // MUI PieChart expects an array of objects with id, value, and label
+  const data = Array.from(grouped.entries())
+    .map(([label, value], index) => ({ id: index, value, label }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 6); // Keep it to top 6 so the legend doesn't overflow
 
   return (
-    <section className="panel">
-      <h2 className="panel-title">Charts</h2>
-
-      <div className="filter-row">
-        {(["7d", "30d", "90d"] as DateRangeKey[]).map((range) => (
-          <button
-            key={range}
-            className={`filter-chip ${dateRange === range ? "active" : ""}`}
-            onClick={() => setDateRange(range)}
-          >
-            {range}
-          </button>
-        ))}
-      </div>
-
-      <div className="chart-block">
-        <h3 className="chart-title">Range Overview</h3>
-        {summaryBars.map((entry) => (
-          <button
-            key={entry.label}
-            className={`bar-row clickable ${selectedFlow === entry.flowType ? "selected" : ""}`}
-            onClick={() => {
-              if (!entry.flowType) {
-                return;
-              }
-
-              setSelectedFlow((current) =>
-                current === entry.flowType ? null : entry.flowType,
-              );
-            }}
-            disabled={!entry.flowType}
-          >
-            <span className="bar-label">{entry.label}</span>
-            <div className="bar-track">
-              <div
-                className="bar-fill"
-                style={{ width: `${(entry.value / maxSummary) * 100}%` }}
-              />
-            </div>
-            <span className="bar-value">{entry.value.toFixed(2)}</span>
-          </button>
-        ))}
-        <p className="hint-text">
-          Click Income or Spending to view a category breakdown.
-        </p>
-        <p className="hint-text">
-          PFC taxonomy: {taxonomyLabel}. Confidence on {confidenceKnownCount}/
-          {categoryTransactions.length} categorized transactions.
-        </p>
-      </div>
-
-      <div className="chart-block">
-        <h3 className="chart-title">Recent Daily Trend</h3>
-        {trendData.length === 0 ? (
-          <p>No transaction data available for trend chart.</p>
+    <Paper elevation={2} sx={{ p: 3, borderRadius: 2, height: "100%" }}>
+      <Typography variant="h6" gutterBottom>
+        Spending by Category
+      </Typography>
+      <Box
+        sx={{
+          width: "100%",
+          height: 350,
+          display: "flex",
+          alignItems: "center",
+        }}
+      >
+        {data.length > 0 ? (
+          <PieChart
+            series={[
+              {
+                data,
+                innerRadius: 30,
+                paddingAngle: 2,
+                cornerRadius: 4,
+              },
+            ]}
+            // Hiding the legend to save space in a 1/4 width card,
+            // the tooltip handles identifying the slices perfectly.
+            slotProps={{ legend: { hidden: true } }}
+            margin={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          />
         ) : (
-          trendData.map((entry) => (
-            <div key={entry.date} className="trend-row">
-              <span className="trend-date">{entry.date.slice(5)}</span>
-              <div className="trend-bars">
-                <div className="trend-track">
-                  <div
-                    className="trend-fill income"
-                    style={{ width: `${(entry.income / maxTrend) * 100}%` }}
-                  />
-                </div>
-                <div className="trend-track">
-                  <div
-                    className="trend-fill spending"
-                    style={{ width: `${(entry.spending / maxTrend) * 100}%` }}
-                  />
-                </div>
-              </div>
-            </div>
-          ))
+          <Typography color="text.secondary" sx={{ mx: "auto" }}>
+            No data
+          </Typography>
         )}
-      </div>
+      </Box>
+    </Paper>
+  );
+}
 
-      {selectedFlow && (
-        <div className="chart-block">
-          <h3 className="chart-title">
-            Top {selectedFlow === "spending" ? "Spending" : "Income"} Categories
-            ({dateRange})
-          </h3>
-          {breakdown.length === 0 ? (
-            <p>No categorized transactions found in this range.</p>
-          ) : (
-            <div className="breakdown-bars">
-              {breakdown.map((entry) => (
-                <div className="breakdown-row" key={entry.category}>
-                  <div className="breakdown-header">
-                    <span className="breakdown-category">{entry.category}</span>
-                    <span className="breakdown-total">
-                      {entry.total.toFixed(2)}
-                    </span>
-                  </div>
-                  <div className="bar-track">
-                    <div
-                      className="bar-fill"
-                      style={{
-                        width: `${(entry.total / maxBreakdown) * 100}%`,
-                      }}
-                    />
-                  </div>
-                  <div className="breakdown-meta">
-                    Top detail: {entry.topDetailedCategory} · {entry.count} txns
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
-    </section>
+
+
+================================================
+FILE: apps/web/src/components/ChartsPanel.tsx
+================================================
+import { TransactionRecord } from "@personal-finances/contracts";
+import { Paper, Typography, Box, CircularProgress, Grid } from "@mui/material";
+import { LineChart } from "@mui/x-charts/LineChart";
+import { BarChart } from "@mui/x-charts/BarChart";
+
+// Helper to group transactions by date for the trend line
+function buildTrendData(transactions: TransactionRecord[]) {
+  const grouped = new Map<
+    string,
+    { date: string; income: number; spending: number }
+  >();
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    grouped.set(d.toISOString().slice(0, 10), {
+      date: d.toISOString().slice(5, 10),
+      income: 0,
+      spending: 0,
+    });
+  }
+
+  for (const t of transactions) {
+    if (grouped.has(t.date)) {
+      const entry = grouped.get(t.date)!;
+      if (t.amount < 0) entry.income += Math.abs(t.amount);
+      else entry.spending += t.amount;
+    }
+  }
+  return Array.from(grouped.values());
+}
+
+// Helper for top merchants/categories (Bar chart view)
+function buildTopSpendingData(transactions: TransactionRecord[]) {
+  const grouped = new Map<string, number>();
+  for (const t of transactions) {
+    if (t.amount < 0) continue; // Only spending
+    const label = t.merchant || "Unknown";
+    grouped.set(label, (grouped.get(label) ?? 0) + t.amount);
+  }
+  return Array.from(grouped.entries())
+    .map(([label, amount]) => ({ label, amount }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+}
+
+export function ChartsPanel({
+  transactions,
+  loading,
+}: {
+  transactions: TransactionRecord[];
+  loading: boolean;
+}) {
+  if (loading) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", p: 5 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const trendData = buildTrendData(transactions);
+  const spendingData = buildTopSpendingData(transactions);
+
+  return (
+    <Grid container spacing={3} sx={{ mb: 3 }}>
+      {/* 50% width on desktop, 100% on mobile */}
+      <Grid item xs={12} md={6}>
+        <Paper elevation={2} sx={{ p: 3, borderRadius: 2, height: "100%" }}>
+          <Typography variant="h6" gutterBottom>
+            Cashflow Trend
+          </Typography>
+          <Box sx={{ width: "100%", height: 300 }}>
+            <LineChart
+              dataset={trendData}
+              xAxis={[{ scaleType: "point", dataKey: "date" }]}
+              series={[
+                {
+                  dataKey: "income",
+                  label: "Income",
+                  color: "#2e7d32",
+                  curve: "monotoneX",
+                  showMark: false,
+                },
+                {
+                  dataKey: "spending",
+                  label: "Spending",
+                  color: "#d32f2f",
+                  curve: "monotoneX",
+                  showMark: false,
+                },
+              ]}
+              margin={{ top: 20, bottom: 30, left: 50, right: 20 }}
+            />
+          </Box>
+        </Paper>
+      </Grid>
+
+      {/* 50% width on desktop, 100% on mobile */}
+      <Grid item xs={12} md={6}>
+        <Paper elevation={2} sx={{ p: 3, borderRadius: 2, height: "100%" }}>
+          <Typography variant="h6" gutterBottom>
+            Top Merchants
+          </Typography>
+          <Box sx={{ width: "100%", height: 300 }}>
+            <BarChart
+              dataset={spendingData}
+              yAxis={[{ scaleType: "band", dataKey: "label" }]}
+              series={[{ dataKey: "amount", color: "#1976d2" }]}
+              layout="horizontal"
+              margin={{ left: 100, right: 20, top: 20, bottom: 30 }}
+            />
+          </Box>
+        </Paper>
+      </Grid>
+    </Grid>
   );
 }
 
@@ -3004,26 +2777,105 @@ export function ChartsPanel(props: {
 FILE: apps/web/src/components/DashboardPanel.tsx
 ================================================
 import { DashboardSummary } from "@personal-finances/contracts";
+import {
+  Card,
+  CardContent,
+  Typography,
+  Grid,
+  Box,
+  Skeleton,
+} from "@mui/material";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import TrendingUpIcon from "@mui/icons-material/TrendingUp";
+import TrendingDownIcon from "@mui/icons-material/TrendingDown";
+import SavingsIcon from "@mui/icons-material/Savings";
 
 export function DashboardPanel(props: {
   summary: DashboardSummary | null;
   loading: boolean;
 }) {
+  if (props.loading || !props.summary) {
+    return (
+      <Grid container spacing={3} sx={{ mb: 3 }}>
+        {[1, 2, 3, 4].map((i) => (
+          <Grid item xs={12} sm={6} md={3} key={i}>
+            <Skeleton variant="rounded" height={118} />
+          </Grid>
+        ))}
+      </Grid>
+    );
+  }
+
+  // Calculate a 4th metric: Savings Rate
+  const savingsRate =
+    props.summary.incomeMonth > 0
+      ? (props.summary.netCashflowMonth / props.summary.incomeMonth) * 100
+      : 0;
+
+  const cards = [
+    {
+      title: "Net Cashflow",
+      value: `$${Math.abs(props.summary.netCashflowMonth).toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      icon: <AccountBalanceWalletIcon color="primary" sx={{ fontSize: 40 }} />,
+      color: "text.primary",
+    },
+    {
+      title: "Income",
+      value: `$${props.summary.incomeMonth.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      icon: <TrendingUpIcon color="success" sx={{ fontSize: 40 }} />,
+      color: "success.main",
+    },
+    {
+      title: "Spending",
+      value: `$${props.summary.spendingMonth.toLocaleString("en-US", { minimumFractionDigits: 2 })}`,
+      icon: <TrendingDownIcon color="error" sx={{ fontSize: 40 }} />,
+      color: "error.main",
+    },
+    {
+      title: "Savings Rate",
+      value: `${savingsRate.toFixed(1)}%`,
+      icon: <SavingsIcon color="info" sx={{ fontSize: 40 }} />,
+      color: "info.main",
+    },
+  ];
+
   return (
-    <section className="panel">
-      <h2 className="panel-title">Dashboard</h2>
-      {props.summary ? (
-        <ul className="metric-list">
-          <li>
-            Net cashflow (month): {props.summary.netCashflowMonth.toFixed(2)}
-          </li>
-          <li>Income (month): {props.summary.incomeMonth.toFixed(2)}</li>
-          <li>Spending (month): {props.summary.spendingMonth.toFixed(2)}</li>
-        </ul>
-      ) : (
-        <p>{props.loading ? "Loading summary..." : "No dashboard data yet."}</p>
-      )}
-    </section>
+    <Grid container spacing={3} sx={{ mb: 3 }}>
+      {cards.map((card) => (
+        // Breakpoints: Mobile=1 column (12), Tablet=2 cols (6), Desktop=4 cols (3)
+        <Grid item xs={12} sm={6} md={3} key={card.title}>
+          <Card elevation={2} sx={{ borderRadius: 2, height: "100%" }}>
+            <CardContent>
+              <Box
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <Box>
+                  <Typography
+                    color="text.secondary"
+                    variant="subtitle2"
+                    gutterBottom
+                  >
+                    {card.title} (30d)
+                  </Typography>
+                  <Typography
+                    variant="h5"
+                    component="div"
+                    sx={{ color: card.color, fontWeight: "bold" }}
+                  >
+                    {card.value}
+                  </Typography>
+                </Box>
+                {card.icon}
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      ))}
+    </Grid>
   );
 }
 
@@ -3033,39 +2885,86 @@ export function DashboardPanel(props: {
 FILE: apps/web/src/components/TransactionsPanel.tsx
 ================================================
 import { TransactionRecord } from "@personal-finances/contracts";
+import {
+  Paper,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Chip,
+} from "@mui/material";
 
-export function TransactionsPanel(props: {
+export function TransactionsPanel({
+  transactions,
+  loading,
+}: {
   transactions: TransactionRecord[];
   loading: boolean;
 }) {
   return (
-    <section className="panel">
-      <h2 className="panel-title">Recent Transactions</h2>
-      {props.loading ? (
-        <p>Loading transactions...</p>
-      ) : props.transactions.length === 0 ? (
-        <p>No transactions yet.</p>
-      ) : (
-        <table className="transactions-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Merchant</th>
-              <th className="align-right">Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            {props.transactions.map((transaction) => (
-              <tr key={transaction.id}>
-                <td>{transaction.date}</td>
-                <td>{transaction.merchant}</td>
-                <td className="align-right">{transaction.amount.toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
-    </section>
+    <Paper
+      elevation={2}
+      sx={{ p: 0, borderRadius: 2, overflow: "hidden", mt: 3 }}
+    >
+      <Typography variant="h6" sx={{ p: 3, pb: 2 }}>
+        Recent Transactions
+      </Typography>
+      <TableContainer sx={{ maxHeight: 500 }}>
+        <Table stickyHeader>
+          <TableHead>
+            <TableRow>
+              <TableCell>Date</TableCell>
+              <TableCell>Merchant</TableCell>
+              <TableCell>Category</TableCell>
+              <TableCell align="right">Amount</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {loading ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  Loading...
+                </TableCell>
+              </TableRow>
+            ) : transactions.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  No transactions found.
+                </TableCell>
+              </TableRow>
+            ) : (
+              transactions.map((t) => (
+                <TableRow key={t.id} hover>
+                  <TableCell sx={{ whiteSpace: "nowrap" }}>{t.date}</TableCell>
+                  <TableCell>{t.merchant}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={
+                        t.personalFinanceCategoryPrimary ?? "Uncategorized"
+                      }
+                      size="small"
+                      variant="outlined"
+                    />
+                  </TableCell>
+                  <TableCell
+                    align="right"
+                    sx={{
+                      fontWeight: "bold",
+                      color: t.amount < 0 ? "success.main" : "inherit",
+                    }}
+                  >
+                    {t.amount < 0 ? "+" : ""}${Math.abs(t.amount).toFixed(2)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Paper>
   );
 }
 
@@ -3327,7 +3226,23 @@ import {
 import { DashboardPanel } from "../components/DashboardPanel";
 import { ChartsPanel } from "../components/ChartsPanel";
 import { TransactionsPanel } from "../components/TransactionsPanel";
+import { CategoryPiePanel } from "../components/CategoryPiePanel";
 
+import {
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+  CssBaseline,
+} from "@mui/material";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import ReceiptIcon from "@mui/icons-material/Receipt";
+import SettingsIcon from "@mui/icons-material/Settings";
+
+const drawerWidth = 240;
 interface DashboardProps {
   token: string;
   setToken: (token: string | null) => void;
@@ -3502,35 +3417,37 @@ export function Dashboard({
   };
 
   return (
-    <Box sx={{ flexGrow: 1, bgcolor: "#f9fafb", minHeight: "100vh" }}>
-      {/* Top Navigation Bar */}
+    <Box sx={{ display: "flex", bgcolor: "#f9fafb", minHeight: "100vh" }}>
+      <CssBaseline />
+
+      {/* Top App Bar */}
       <AppBar
-        position="static"
-        color="transparent"
-        elevation={0}
-        sx={{ borderBottom: "1px solid #e5e7eb", bgcolor: "white" }}
+        position="fixed"
+        sx={{
+          zIndex: (theme) => theme.zIndex.drawer + 1,
+          bgcolor: "white",
+          color: "text.primary",
+          elevation: 1,
+        }}
       >
         <Toolbar>
           <Typography
             variant="h6"
+            noWrap
             component="div"
             sx={{ flexGrow: 1, fontWeight: "bold" }}
           >
             Personal Finances
           </Typography>
-
           <IconButton onClick={handleMenuOpen} color="inherit">
             <Avatar sx={{ bgcolor: "primary.main", width: 32, height: 32 }}>
               <PersonIcon />
             </Avatar>
           </IconButton>
-
           <Menu
             anchorEl={anchorEl}
             open={Boolean(anchorEl)}
             onClose={handleMenuClose}
-            transformOrigin={{ horizontal: "right", vertical: "top" }}
-            anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
           >
             <MenuItem onClick={handleManualSync}>Force Sync Data</MenuItem>
             <MenuItem onClick={handleLinkAnotherAccount}>
@@ -3543,45 +3460,97 @@ export function Dashboard({
         </Toolbar>
       </AppBar>
 
-      {/* Main Dashboard Content */}
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
-            {error}
-          </Alert>
-        )}
-        {status && (
-          <Alert severity="info" sx={{ mb: 3 }} onClose={() => setStatus(null)}>
-            {status}
-          </Alert>
-        )}
+      {/* Sidebar Drawer */}
+      <Drawer
+        variant="permanent"
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          [`& .MuiDrawer-paper`]: {
+            width: drawerWidth,
+            boxSizing: "border-box",
+            bgcolor: "white",
+          },
+        }}
+      >
+        <Toolbar /> {/* Spacer to push content below AppBar */}
+        <Box sx={{ overflow: "auto" }}>
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton selected>
+                <ListItemIcon>
+                  <DashboardIcon color="primary" />
+                </ListItemIcon>
+                <ListItemText primary="Dashboard" />
+              </ListItemButton>
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <ReceiptIcon />
+                </ListItemIcon>
+                <ListItemText primary="Tax Reports" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+          <Divider />
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton>
+                <ListItemIcon>
+                  <SettingsIcon />
+                </ListItemIcon>
+                <ListItemText primary="Settings" />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        </Box>
+      </Drawer>
 
-        {isRefreshing && !summary ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 10 }}>
-            <CircularProgress />
-          </Box>
-        ) : (
+      {/* Main Content Area */}
+      <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+        <Toolbar /> {/* Spacer */}
+        <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+          {error && (
+            <Alert severity="error" sx={{ mb: 3 }}>
+              {error}
+            </Alert>
+          )}
+          {status && (
+            <Alert
+              severity="info"
+              sx={{ mb: 3 }}
+              onClose={() => setStatus(null)}
+            >
+              {status}
+            </Alert>
+          )}
+
+          {/* Row 1: 4 Cards */}
+          <DashboardPanel summary={summary} loading={isRefreshing} />
+
+          {/* Row 2: 2 Side-by-Side Charts */}
+          <ChartsPanel transactions={transactions} loading={isRefreshing} />
+
+          {/* Row 3: 3/4 Table, 1/4 Pie Chart */}
           <Grid container spacing={3}>
-            {/* Note: These components will be extracted in the next step */}
-            <Grid xs={12} md={4}>
-              <DashboardPanel summary={summary} loading={isRefreshing} />
-            </Grid>
-            <Grid xs={12} md={8}>
-              <ChartsPanel
-                summary={summary}
-                transactions={transactions}
-                loading={isRefreshing}
-              />
-            </Grid>
-            <Grid xs={12}>
+            {/* 9 columns out of 12 = 3/4 width on desktop */}
+            <Grid item xs={12} md={9}>
               <TransactionsPanel
                 transactions={transactions}
                 loading={isRefreshing}
               />
             </Grid>
+            {/* 3 columns out of 12 = 1/4 width on desktop */}
+            <Grid item xs={12} md={3}>
+              <CategoryPiePanel
+                transactions={transactions}
+                loading={isRefreshing}
+              />
+            </Grid>
           </Grid>
-        )}
-      </Container>
+        </Container>
+      </Box>
     </Box>
   );
 }
