@@ -98,6 +98,7 @@ export function AuthPortal({ setToken }: { setToken: (t: string) => void }) {
     setStatus("Working...");
     setError(null);
 
+    try {
       const payload = await (mode === "login"
         ? authApi.login(email, password)
         : authApi.register(email, password));
